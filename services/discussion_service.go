@@ -1,4 +1,3 @@
-// services/discussion_service.go
 package services
 
 import (
@@ -6,9 +5,10 @@ import (
 	"LMS/repositories"
 	"errors"
 	"time"
+
 )
 
-// DiscussionService handles discussion business logic
+// DiscussionService menangani logika bisnis diskusi
 type DiscussionService struct {
 	DiscussionRepo *repositories.DiscussionRepository
 	CourseRepo     *repositories.CourseRepository
@@ -16,7 +16,7 @@ type DiscussionService struct {
 	EnrollmentRepo *repositories.EnrollmentRepository
 }
 
-// NewDiscussionService creates a new discussion service
+// NewDiscussionService membuat layanan diskusi baru
 func NewDiscussionService(
 	discussionRepo *repositories.DiscussionRepository,
 	courseRepo *repositories.CourseRepository,
@@ -31,21 +31,21 @@ func NewDiscussionService(
 	}
 }
 
-// CreateDiscussion creates a new discussion
+// CreateDiscussion membuat diskusi baru
 func (s *DiscussionService) CreateDiscussion(discussion *models.Discussion) error {
-	// Verify the course exists
+	// Verifikasi keberadaan kursus
 	_, err := s.CourseRepo.FindByID(discussion.CourseID)
 	if err != nil {
 		return errors.New("course not found")
 	}
 
-	// Verify the user exists
+	// Verifikasi keberadaan pengguna
 	user, err := s.UserRepo.FindByID(discussion.UserID)
 	if err != nil {
 		return errors.New("user not found")
 	}
 
-	// If user is a student, verify enrollment
+	// Jika pengguna adalah siswa, verifikasi pendaftaran
 	if user.Role == models.RoleStudent {
 		_, err = s.EnrollmentRepo.FindByUserAndCourse(discussion.UserID, discussion.CourseID)
 		if err != nil {
@@ -53,52 +53,52 @@ func (s *DiscussionService) CreateDiscussion(discussion *models.Discussion) erro
 		}
 	}
 
-	// Set creation date
+	// Tetapkan tanggal pembuatan
 	discussion.CreatedAt = time.Now()
 
-	// Create the discussion
+	// Buat diskusi
 	return s.DiscussionRepo.Create(discussion)
 }
 
-// GetDiscussionByID gets a discussion by ID
+// GetDiscussionByID mendapatkan diskusi berdasarkan ID
 func (s *DiscussionService) GetDiscussionByID(id uint) (*models.Discussion, error) {
 	return s.DiscussionRepo.FindByID(id)
 }
 
-// GetDiscussionsByCourse gets discussions by course ID
+// GetDiscussionsByCourse mendapatkan diskusi berdasarkan ID kursus
 func (s *DiscussionService) GetDiscussionsByCourse(courseID uint) ([]models.Discussion, error) {
 	return s.DiscussionRepo.FindByCourse(courseID)
 }
 
-// UpdateDiscussion updates a discussion
+// UpdateDiscussion memperbarui diskusi
 func (s *DiscussionService) UpdateDiscussion(discussion *models.Discussion) error {
-	// Verify the discussion exists
+	// Verifikasi adanya diskusi
 	existingDiscussion, err := s.DiscussionRepo.FindByID(discussion.ID)
 	if err != nil {
 		return err
 	}
 
-	// Verify the user owns the discussion
+	// Verifikasi pengguna sebagai pemilik diskusi
 	if existingDiscussion.UserID != discussion.UserID {
 		return errors.New("user does not own this discussion")
 	}
 
-	// Update only allowed fields
+	// Perbarui hanya bidang yang diizinkan
 	existingDiscussion.Title = discussion.Title
 	existingDiscussion.Content = discussion.Content
 
 	return s.DiscussionRepo.Update(existingDiscussion)
 }
 
-// DeleteDiscussion deletes a discussion
+// DeleteDiscussion menghapus diskusi
 func (s *DiscussionService) DeleteDiscussion(id uint, userID uint, isAdmin bool) error {
-	// Verify the discussion exists
+	// Verifikasi adanya diskusi
 	discussion, err := s.DiscussionRepo.FindByID(id)
 	if err != nil {
 		return err
 	}
 
-	// Verify the user owns the discussion or is an admin
+	// Verifikasi pengguna yang memiliki diskusi atau admin
 	if !isAdmin && discussion.UserID != userID {
 		return errors.New("user does not own this discussion")
 	}

@@ -8,21 +8,22 @@ import (
 	"time"
 
 	"github.com/gin-gonic/gin"
+
 )
 
-// AssignmentController handles assignment requests
+// AssignmentController untuk permintaan penugasan
 type AssignmentController struct {
 	AssignmentService *services.AssignmentService
 }
 
-// NewAssignmentController creates a new assignment controller
+// NewAssignmentController membuat pengontrol penugasan baru
 func NewAssignmentController(assignmentService *services.AssignmentService) *AssignmentController {
 	return &AssignmentController{
 		AssignmentService: assignmentService,
 	}
 }
 
-// CreateAssignmentRequest represents a request to create a new assignment
+// CreateAssignmentRequest mewakili permintaan untuk membuat tugas baru
 type CreateAssignmentRequest struct {
 	CourseID    uint       `json:"course_id" binding:"required"`
 	Title       string     `json:"title" binding:"required"`
@@ -31,7 +32,7 @@ type CreateAssignmentRequest struct {
 	MaxScore    *int       `json:"max_score"`
 }
 
-// UpdateAssignmentRequest represents a request to update an assignment
+// UpdateAssignmentRequest mewakili permintaan untuk memperbarui tugas
 type UpdateAssignmentRequest struct {
 	Title       string     `json:"title" binding:"required"`
 	Description string     `json:"description"`
@@ -39,7 +40,7 @@ type UpdateAssignmentRequest struct {
 	MaxScore    *int       `json:"max_score"`
 }
 
-// CreateAssignment handles assignment creation
+// CreateAssignment menangani pembuatan tugas
 func (c *AssignmentController) CreateAssignment(ctx *gin.Context) {
 	var request CreateAssignmentRequest
 	if err := ctx.ShouldBindJSON(&request); err != nil {
@@ -66,7 +67,7 @@ func (c *AssignmentController) CreateAssignment(ctx *gin.Context) {
 	})
 }
 
-// GetAssignmentByID handles getting an assignment by ID
+// GetAssignmentByID menangani pengambilan tugas berdasarkan ID
 func (c *AssignmentController) GetAssignmentByID(ctx *gin.Context) {
 	id, err := strconv.ParseUint(ctx.Param("id"), 10, 32)
 	if err != nil {
@@ -83,7 +84,7 @@ func (c *AssignmentController) GetAssignmentByID(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, assignment)
 }
 
-// GetAssignmentsByCourse handles getting assignments by course ID
+// GetAssignmentsByCourse menangani pengambilan tugas berdasarkan ID kursus
 func (c *AssignmentController) GetAssignmentsByCourse(ctx *gin.Context) {
 	courseID, err := strconv.ParseUint(ctx.Param("course_id"), 10, 32)
 	if err != nil {
@@ -100,7 +101,7 @@ func (c *AssignmentController) GetAssignmentsByCourse(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, assignments)
 }
 
-// UpdateAssignment handles updating an assignment
+// UpdateAssignment menangani pembaruan tugas
 func (c *AssignmentController) UpdateAssignment(ctx *gin.Context) {
 	id, err := strconv.ParseUint(ctx.Param("id"), 10, 32)
 	if err != nil {
@@ -132,7 +133,7 @@ func (c *AssignmentController) UpdateAssignment(ctx *gin.Context) {
 	})
 }
 
-// DeleteAssignment handles deleting an assignment
+// DeleteAssignment menangani penghapusan tugas
 func (c *AssignmentController) DeleteAssignment(ctx *gin.Context) {
 	id, err := strconv.ParseUint(ctx.Param("id"), 10, 32)
 	if err != nil {

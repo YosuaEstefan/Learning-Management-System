@@ -1,50 +1,53 @@
-# Binaries for programs and plugins
+#  Biner untuk program dan plugin
 *.exe
 *.exe~
 *.dll
 *.so
 *.dylib
 
-# Test binary, built with 'go test -c'
+# Uji biner, dibuat dengan 'go test -c'
 *.test
 
-# Output of the go coverage tool
+# Keluaran dari alat cakupan gover
 *.out
 
-# Go workspaces file
+# Go Buka file ruang kerja
 go.work
 
-# Dependency directories
+# Direktori yang dihasilkan oleh Go
+# Go mod vendor dir
 vendor/
 
-# IDE-specific files
+# File khusus IDE
 .idea/
 .vscode/
 *.swp
 *.swo
 
-# Environment variables
+# Variabel lingkungan
 .env
 .env.local
 .env.development
 .env.test
 .env.production
 
-# Upload directories
+# Unggah direktori
 uploads/
 tmp/
 
-# Build artifacts
+# Membangun hasil
+# Hasil build untuk aplikasi Go
 bin/
 build/
 
-# Docker volumes
+# Volume Docker
 docker-volumes/
 
-# Logs
+# log file
 logs/
 *.log
 
-# Database files
+# file database
+
 *.db
 *.sqlite

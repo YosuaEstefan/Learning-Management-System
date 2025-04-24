@@ -5,19 +5,20 @@ import (
 	"errors"
 
 	"gorm.io/gorm"
+
 )
 
-// AssessmentRepository handles database operations for assessments
+// AssessmentRepository menangani operasi basis data untuk penilaian
 type AssessmentRepository struct {
 	DB *gorm.DB
 }
 
-// NewAssessmentRepository creates a new assessment repository
+// NewAssessmentRepository membuat repositori penilaian baru
 func NewAssessmentRepository(db *gorm.DB) *AssessmentRepository {
 	return &AssessmentRepository{DB: db}
 }
 
-// FindByID finds an assessment by ID
+// FindByID menemukan penilaian berdasarkan ID
 func (r *AssessmentRepository) FindByID(id uint) (*models.Assessment, error) {
 	var assessment models.Assessment
 	result := r.DB.First(&assessment, id)
@@ -30,7 +31,7 @@ func (r *AssessmentRepository) FindByID(id uint) (*models.Assessment, error) {
 	return &assessment, nil
 }
 
-// FindBySubmission finds an assessment by submission ID
+// FindBySubmission menemukan penilaian berdasarkan ID pengajuan
 func (r *AssessmentRepository) FindBySubmission(submissionID uint) (*models.Assessment, error) {
 	var assessment models.Assessment
 	result := r.DB.Where("submission_id = ?", submissionID).First(&assessment)
@@ -43,17 +44,17 @@ func (r *AssessmentRepository) FindBySubmission(submissionID uint) (*models.Asse
 	return &assessment, nil
 }
 
-// Create creates a new assessment
+// Buat membuat penilaian baru
 func (r *AssessmentRepository) Create(assessment *models.Assessment) error {
 	return r.DB.Create(assessment).Error
 }
 
-// Update updates an existing assessment
+// Perbarui memperbarui penilaian yang ada
 func (r *AssessmentRepository) Update(assessment *models.Assessment) error {
 	return r.DB.Save(assessment).Error
 }
 
-// Delete deletes an assessment
+// Hapus menghapus penilaian
 func (r *AssessmentRepository) Delete(id uint) error {
 	return r.DB.Delete(&models.Assessment{}, id).Error
 }

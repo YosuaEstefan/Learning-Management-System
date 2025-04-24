@@ -9,7 +9,8 @@ import (
 	"github.com/golang-jwt/jwt/v5"
 )
 
-// JWTClaims represents the claims in the JWT
+// JWTClaims mewakili klaim yang disimpan dalam token JWT
+// Ini termasuk ID pengguna, email, dan peran pengguna
 type JWTClaims struct {
 	UserID uint        `json:"user_id"`
 	Email  string      `json:"email"`
@@ -17,15 +18,16 @@ type JWTClaims struct {
 	jwt.RegisteredClaims
 }
 
-// GenerateToken generates a new JWT token for a user
+// GenerateToken menghasilkan token JWT baru untuk pengguna
 func GenerateToken(user *models.User) (string, error) {
-	// Get secret key from environment variable or use default for development
+	// dapatkan kunci rahasia dari variabel lingkungan atau gunakan default untuk pengembangan
 	secretKey := getEnv("JWT_SECRET_KEY", "your-256-bit-secret")
 
-	// Set expiration time (e.g., 24 hours)
+	// Tetapkan waktu kedaluwarsa
 	expirationTime := time.Now().Add(24 * time.Hour)
 
-	// Create claims
+	// membuat klaim dengan informasi pengguna
+	// dan waktu kedaluwarsa
 	claims := &JWTClaims{
 		UserID: user.ID,
 		Email:  user.Email,
@@ -39,10 +41,12 @@ func GenerateToken(user *models.User) (string, error) {
 		},
 	}
 
-	// Create token with claims
+	// membuat token baru dengan klaim yang ditentukan
+	// dan metode penandatanganan HMAC SHA256
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
 
-	// Sign the token with the secret key
+	// menandatangani token dengan kunci rahasia
+	// dan mengembalikan token sebagai string
 	tokenString, err := token.SignedString([]byte(secretKey))
 	if err != nil {
 		return "", err
@@ -51,17 +55,20 @@ func GenerateToken(user *models.User) (string, error) {
 	return tokenString, nil
 }
 
-// ValidateToken validates a JWT token and returns the claims
+// validateToken memvalidasi token JWT dan mengembalikan klaimnya
+// Jika token tidak valid, mengembalikan kesalahan
 func ValidateToken(tokenString string) (*JWTClaims, error) {
-	// Get secret key from environment variable or use default for development
+	// Dapatkan kunci rahasia dari variabel lingkungan atau gunakan default untuk pengembangan
 	secretKey := getEnv("JWT_SECRET_KEY", "your-256-bit-secret")
 
-	// Parse the token
+	// Parse token dengan klaim yang ditentukan
+	// dan fungsi untuk memvalidasi metode penandatanganan
 	token, err := jwt.ParseWithClaims(
 		tokenString,
 		&JWTClaims{},
 		func(token *jwt.Token) (interface{}, error) {
-			// Validate the algorithm
+			// validasi metode penandatanganan
+			// pastikan itu adalah HMAC SHA256
 			if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
 				return nil, errors.New("unexpected signing method")
 			}
@@ -73,7 +80,8 @@ func ValidateToken(tokenString string) (*JWTClaims, error) {
 		return nil, err
 	}
 
-	// Validate the token and return the claims
+	// validasi klaim token
+	// jika token valid, kembalikan klaimnya
 	if claims, ok := token.Claims.(*JWTClaims); ok && token.Valid {
 		return claims, nil
 	}
@@ -81,7 +89,8 @@ func ValidateToken(tokenString string) (*JWTClaims, error) {
 	return nil, errors.New("invalid token")
 }
 
-// Helper function to get environment variables with default fallback
+// membantu fungsi untuk mendapatkan variabel lingkungan
+// dengan nilai default jika tidak ditemukan
 func getEnv(key, fallback string) string {
 	if value, exists := os.LookupEnv(key); exists {
 		return value

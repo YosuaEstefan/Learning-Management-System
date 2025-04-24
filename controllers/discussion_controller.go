@@ -7,34 +7,35 @@ import (
 	"strconv"
 
 	"github.com/gin-gonic/gin"
+
 )
 
-// DiscussionController handles discussion requests
+// DiscussionController menangani permintaan diskusi
 type DiscussionController struct {
 	DiscussionService *services.DiscussionService
 }
 
-// NewDiscussionController creates a new discussion controller
+// NewDiscussionController membuat pengontrol diskusi baru
 func NewDiscussionController(discussionService *services.DiscussionService) *DiscussionController {
 	return &DiscussionController{
 		DiscussionService: discussionService,
 	}
 }
 
-// CreateDiscussionRequest represents a request to create a new discussion
+// CreateDiscussionRequest mewakili permintaan untuk membuat diskusi baru
 type CreateDiscussionRequest struct {
 	CourseID uint   `json:"course_id" binding:"required"`
 	Title    string `json:"title" binding:"required"`
 	Content  string `json:"content" binding:"required"`
 }
 
-// UpdateDiscussionRequest represents a request to update a discussion
+// UpdateDiscussionRequest mewakili permintaan untuk memperbarui diskusi
 type UpdateDiscussionRequest struct {
 	Title   string `json:"title" binding:"required"`
 	Content string `json:"content" binding:"required"`
 }
 
-// CreateDiscussion handles discussion creation
+// CreateDiscussion menangani pembuatan diskusi
 func (c *DiscussionController) CreateDiscussion(ctx *gin.Context) {
 	var request CreateDiscussionRequest
 	if err := ctx.ShouldBindJSON(&request); err != nil {
@@ -62,7 +63,7 @@ func (c *DiscussionController) CreateDiscussion(ctx *gin.Context) {
 	})
 }
 
-// GetDiscussionByID handles getting a discussion by ID
+// GetDiscussionByID menangani mendapatkan diskusi berdasarkan ID
 func (c *DiscussionController) GetDiscussionByID(ctx *gin.Context) {
 	id, err := strconv.ParseUint(ctx.Param("id"), 10, 32)
 	if err != nil {
@@ -79,7 +80,7 @@ func (c *DiscussionController) GetDiscussionByID(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, discussion)
 }
 
-// GetDiscussionsByCourse handles getting discussions by course ID
+// GetDiscussionsByCourse menangani mendapatkan diskusi berdasarkan ID kursus
 func (c *DiscussionController) GetDiscussionsByCourse(ctx *gin.Context) {
 	courseID, err := strconv.ParseUint(ctx.Param("course_id"), 10, 32)
 	if err != nil {
@@ -96,7 +97,7 @@ func (c *DiscussionController) GetDiscussionsByCourse(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, discussions)
 }
 
-// UpdateDiscussion handles updating a discussion
+// UpdateDiscussion menangani pembaruan diskusi
 func (c *DiscussionController) UpdateDiscussion(ctx *gin.Context) {
 	id, err := strconv.ParseUint(ctx.Param("id"), 10, 32)
 	if err != nil {
@@ -129,7 +130,7 @@ func (c *DiscussionController) UpdateDiscussion(ctx *gin.Context) {
 	})
 }
 
-// DeleteDiscussion handles deleting a discussion
+// DeleteDiscussion menangani penghapusan diskusi
 func (c *DiscussionController) DeleteDiscussion(ctx *gin.Context) {
 	id, err := strconv.ParseUint(ctx.Param("id"), 10, 32)
 	if err != nil {

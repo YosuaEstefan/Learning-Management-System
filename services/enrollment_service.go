@@ -1,4 +1,3 @@
-// services/enrollment_service.go
 package services
 
 import (
@@ -6,16 +5,17 @@ import (
 	"LMS/repositories"
 	"errors"
 	"time"
+
 )
 
-// EnrollmentService handles enrollment business logic
+// EnrollmentService menangani logika bisnis pendaftaran
 type EnrollmentService struct {
 	EnrollmentRepo *repositories.EnrollmentRepository
 	UserRepo       *repositories.UserRepository
 	CourseRepo     *repositories.CourseRepository
 }
 
-// NewEnrollmentService creates a new enrollment service
+// NewEnrollmentService membuat layanan pendaftaran baru
 func NewEnrollmentService(enrollmentRepo *repositories.EnrollmentRepository, userRepo *repositories.UserRepository, courseRepo *repositories.CourseRepository) *EnrollmentService {
 	return &EnrollmentService{
 		EnrollmentRepo: enrollmentRepo,
@@ -24,59 +24,59 @@ func NewEnrollmentService(enrollmentRepo *repositories.EnrollmentRepository, use
 	}
 }
 
-// CreateEnrollment creates a new enrollment
+// CreateEnrollment membuat pendaftaran baru
 func (s *EnrollmentService) CreateEnrollment(enrollment *models.Enrollment) error {
-	// Verify the user exists
+	// Verifikasi keberadaan pengguna
 	user, err := s.UserRepo.FindByID(enrollment.UserID)
 	if err != nil {
 		return errors.New("user not found")
 	}
 
-	// Verify the user is a student
+	// Verifikasi pengguna adalah siswa
 	if user.Role != models.RoleStudent {
 		return errors.New("only students can enroll in courses")
 	}
 
-	// Verify the course exists
+	// Verifikasi keberadaan kursus
 	_, err = s.CourseRepo.FindByID(enrollment.CourseID)
 	if err != nil {
 		return errors.New("course not found")
 	}
 
-	// Check if the student is already enrolled
+	// Periksa apakah siswa sudah terdaftar
 	_, err = s.EnrollmentRepo.FindByUserAndCourse(enrollment.UserID, enrollment.CourseID)
 	if err == nil {
 		return errors.New("student is already enrolled in this course")
 	}
 
-	// Set enrollment date
+	// Tetapkan tanggal pendaftaran
 	enrollment.EnrollmentDate = time.Now()
 
-	// Create the enrollment
+	// Buat pendaftaran
 	return s.EnrollmentRepo.Create(enrollment)
 }
 
-// GetEnrollmentByID gets an enrollment by ID
+// GetEnrollmentByID mendapatkan pendaftaran dengan ID
 func (s *EnrollmentService) GetEnrollmentByID(id uint) (*models.Enrollment, error) {
 	return s.EnrollmentRepo.FindByID(id)
 }
 
-// GetEnrollmentsByUser gets enrollments by user ID
+// GetEnrollmentsByUser mendapatkan pendaftaran berdasarkan ID pengguna
 func (s *EnrollmentService) GetEnrollmentsByUser(userID uint) ([]models.Enrollment, error) {
 	return s.EnrollmentRepo.FindByUser(userID)
 }
 
-// GetEnrollmentsByCourse gets enrollments by course ID
+// GetEnrollmentsByCourse mendapatkan pendaftaran berdasarkan ID kursus
 func (s *EnrollmentService) GetEnrollmentsByCourse(courseID uint) ([]models.Enrollment, error) {
 	return s.EnrollmentRepo.FindByCourse(courseID)
 }
 
-// DeleteEnrollment deletes an enrollment
+// HapusPendaftaran menghapus pendaftaran
 func (s *EnrollmentService) DeleteEnrollment(id uint) error {
 	return s.EnrollmentRepo.Delete(id)
 }
 
-// IsStudentEnrolled checks if a student is enrolled in a course
+// IsStudentEnrolled memeriksa apakah seorang siswa terdaftar dalam sebuah kursus
 func (s *EnrollmentService) IsStudentEnrolled(userID, courseID uint) (bool, error) {
 	_, err := s.EnrollmentRepo.FindByUserAndCourse(userID, courseID)
 	if err != nil {

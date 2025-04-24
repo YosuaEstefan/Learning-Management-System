@@ -4,6 +4,7 @@ import (
 	"time"
 
 	"gorm.io/gorm"
+
 )
 
 type Discussion struct {
@@ -17,18 +18,5 @@ type Discussion struct {
 	Content   string    `gorm:"type:text" json:"content"`
 	CreatedAt time.Time `gorm:"default:CURRENT_TIMESTAMP" json:"created_at"`
 	UpdatedAt time.Time `gorm:"default:CURRENT_TIMESTAMP" json:"updated_at"	`
-
-	// Relations
-	Comments []Comment `gorm:"foreignKey:DiscussionID" json:"comments,omitempty"`
+	Comments  []Comment `gorm:"foreignKey:DiscussionID" json:"comments,omitempty"`
 }
-
-// type Discussion struct {
-// 	gorm.Model
-// 	ID        uint      `gorm:"primaryKey" json:"id"`
-// 	CourseID  uint      `json:"course_id"`
-// 	UserID    uint      `json:"user_id"`
-// 	Title     string    `json:"title"`
-// 	Content   string    `json:"content"`
-// 	CreatedAt time.Time `json:"created_at"`
-// 	Comments  []Comment `json:"comments,omitempty"`
-// }

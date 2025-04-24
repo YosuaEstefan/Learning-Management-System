@@ -4,6 +4,7 @@ import (
 	"time"
 
 	"gorm.io/gorm"
+
 )
 
 type Comment struct {
@@ -17,12 +18,3 @@ type Comment struct {
 	CreatedAt    time.Time  `gorm:"default:CURRENT_TIMESTAMP" json:"created_at"`
 	UpdatedAt    time.Time  `gorm:"default:CURRENT_TIMESTAMP" json:"updated_at"	`
 }
-
-// type Comment struct {
-// 	gorm.Model
-// 	ID           uint      `gorm:"primaryKey" json:"id"`
-// 	DiscussionID uint      `json:"discussion_id"`
-// 	UserID       uint      `json:"user_id"`
-// 	Content      string    `json:"content"`
-// 	CreatedAt    time.Time `json:"created_at"`
-// }

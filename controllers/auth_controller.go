@@ -1,4 +1,3 @@
-// controllers/auth_controller.go
 package controllers
 
 import (
@@ -7,21 +6,22 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
+
 )
 
-// AuthController handles authentication requests
+// AuthController menangani permintaan autentikasi
 type AuthController struct {
 	AuthService *services.AuthService
 }
 
-// NewAuthController creates a new authentication controller
+// NewAuthController membuat pengontrol autentikasi baru
 func NewAuthController(authService *services.AuthService) *AuthController {
 	return &AuthController{
 		AuthService: authService,
 	}
 }
 
-// RegisterRequest represents a request to register a new user
+// RegisterRequest mewakili permintaan untuk mendaftarkan pengguna baru
 type RegisterRequest struct {
 	Name     string      `json:"name" binding:"required"`
 	Email    string      `json:"email" binding:"required,email"`
@@ -29,7 +29,7 @@ type RegisterRequest struct {
 	Role     models.Role `json:"role" binding:"required,oneof=admin mentor student"`
 }
 
-// LoginRequest represents a request to login
+// LoginRequest mewakili permintaan untuk login
 type LoginRequest struct {
 	Email    string `json:"email" binding:"required,email"`
 	Password string `json:"password" binding:"required"`
@@ -66,7 +66,7 @@ func (c *AuthController) Register(ctx *gin.Context) {
 	})
 }
 
-// Login handles user login
+// Login menangani login pengguna
 func (c *AuthController) Login(ctx *gin.Context) {
 	var request LoginRequest
 	if err := ctx.ShouldBindJSON(&request); err != nil {
@@ -86,7 +86,7 @@ func (c *AuthController) Login(ctx *gin.Context) {
 	})
 }
 
-// GetProfile returns the current user's profile
+// GetProfile mengembalikan profil pengguna saat ini
 func (c *AuthController) GetProfile(ctx *gin.Context) {
 	userID, _ := ctx.Get("userID")
 	user, err := c.AuthService.GetUserByID(userID.(uint))

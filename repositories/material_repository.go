@@ -5,19 +5,20 @@ import (
 	"errors"
 
 	"gorm.io/gorm"
+
 )
 
-// MaterialRepository handles database operations for materials
+// MaterialRepository menangani operasi basis data untuk material
 type MaterialRepository struct {
 	DB *gorm.DB
 }
 
-// NewMaterialRepository creates a new material repository
+// NewMaterialRepository membuat repositori materi baru
 func NewMaterialRepository(db *gorm.DB) *MaterialRepository {
 	return &MaterialRepository{DB: db}
 }
 
-// FindByID finds a material by ID
+// FindByID menemukan materi berdasarkan ID
 func (r *MaterialRepository) FindByID(id uint) (*models.Material, error) {
 	var material models.Material
 	result := r.DB.First(&material, id)
@@ -30,24 +31,24 @@ func (r *MaterialRepository) FindByID(id uint) (*models.Material, error) {
 	return &material, nil
 }
 
-// FindByCourse finds materials by course ID
+// FindByCourse menemukan materi berdasarkan ID kursus
 func (r *MaterialRepository) FindByCourse(courseID uint) ([]models.Material, error) {
 	var materials []models.Material
 	result := r.DB.Where("course_id = ?", courseID).Find(&materials)
 	return materials, result.Error
 }
 
-// Create creates a new material
+// Membuat membuat materi baru
 func (r *MaterialRepository) Create(material *models.Material) error {
 	return r.DB.Create(material).Error
 }
 
-// Update updates an existing material
+// Memperbarui materi yang sudah ada
 func (r *MaterialRepository) Update(material *models.Material) error {
 	return r.DB.Save(material).Error
 }
 
-// Delete deletes a material
+// Hapus menghapus materi
 func (r *MaterialRepository) Delete(id uint) error {
 	return r.DB.Delete(&models.Material{}, id).Error
 }

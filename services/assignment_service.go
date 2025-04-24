@@ -5,15 +5,16 @@ import (
 	"LMS/repositories"
 	"errors"
 	"time"
+
 )
 
-// AssignmentService handles assignment business logic
+// AssignmentService menangani logika bisnis penugasan
 type AssignmentService struct {
 	AssignmentRepo *repositories.AssignmentRepository
 	CourseRepo     *repositories.CourseRepository
 }
 
-// NewAssignmentService creates a new assignment service
+// NewAssignmentService membuat layanan penugasan baru
 func NewAssignmentService(assignmentRepo *repositories.AssignmentRepository, courseRepo *repositories.CourseRepository) *AssignmentService {
 	return &AssignmentService{
 		AssignmentRepo: assignmentRepo,
@@ -21,40 +22,40 @@ func NewAssignmentService(assignmentRepo *repositories.AssignmentRepository, cou
 	}
 }
 
-// CreateAssignment creates a new assignment
+// CreateAssignment membuat penugasan baru
 func (s *AssignmentService) CreateAssignment(assignment *models.Assignment) error {
-	// Verify the course exists
+	// Verifikasi keberadaan kursus
 	_, err := s.CourseRepo.FindByID(assignment.CourseID)
 	if err != nil {
 		return errors.New("course not found")
 	}
 
-	// Set creation date
+	// Tetapkan tanggal pembuatan
 	assignment.CreatedAt = time.Now()
 
-	// Create the assignment
+	// Buat tugas
 	return s.AssignmentRepo.Create(assignment)
 }
 
-// GetAssignmentByID gets an assignment by ID
+// GetAssignmentByID mendapatkan penugasan dengan ID
 func (s *AssignmentService) GetAssignmentByID(id uint) (*models.Assignment, error) {
 	return s.AssignmentRepo.FindByID(id)
 }
 
-// GetAssignmentsByCourse gets assignments by course ID
+// GetAssignmentsByCourse mendapatkan tugas berdasarkan ID kursus
 func (s *AssignmentService) GetAssignmentsByCourse(courseID uint) ([]models.Assignment, error) {
 	return s.AssignmentRepo.FindByCourse(courseID)
 }
 
-// UpdateAssignment updates an assignment
+// UpdateAssignment memperbarui penugasan
 func (s *AssignmentService) UpdateAssignment(assignment *models.Assignment) error {
-	// Verify the assignment exists
+	// Verifikasi bahwa penugasan itu ada
 	existingAssignment, err := s.AssignmentRepo.FindByID(assignment.ID)
 	if err != nil {
 		return err
 	}
 
-	// Update only allowed fields
+	// Perbarui hanya bidang yang diizinkan
 	existingAssignment.Title = assignment.Title
 	existingAssignment.Description = assignment.Description
 	existingAssignment.DueDate = assignment.DueDate
@@ -63,7 +64,7 @@ func (s *AssignmentService) UpdateAssignment(assignment *models.Assignment) erro
 	return s.AssignmentRepo.Update(existingAssignment)
 }
 
-// DeleteAssignment deletes an assignment
+// DeleteAssignment menghapus penugasan
 func (s *AssignmentService) DeleteAssignment(id uint) error {
 	return s.AssignmentRepo.Delete(id)
 }

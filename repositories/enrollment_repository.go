@@ -5,19 +5,20 @@ import (
 	"errors"
 
 	"gorm.io/gorm"
+
 )
 
-// EnrollmentRepository handles database operations for enrollments
+// EnrollmentRepository menangani operasi basis data untuk pendaftaran
 type EnrollmentRepository struct {
 	DB *gorm.DB
 }
 
-// NewEnrollmentRepository creates a new enrollment repository
+// NewEnrollmentRepository membuat repositori pendaftaran baru
 func NewEnrollmentRepository(db *gorm.DB) *EnrollmentRepository {
 	return &EnrollmentRepository{DB: db}
 }
 
-// FindByID finds an enrollment by ID
+// FindByID menemukan pendaftaran dengan ID
 func (r *EnrollmentRepository) FindByID(id uint) (*models.Enrollment, error) {
 	var enrollment models.Enrollment
 	result := r.DB.First(&enrollment, id)
@@ -30,7 +31,7 @@ func (r *EnrollmentRepository) FindByID(id uint) (*models.Enrollment, error) {
 	return &enrollment, nil
 }
 
-// FindByUserAndCourse finds an enrollment by user ID and course ID
+// FindByUserAndCourse menemukan pendaftaran berdasarkan ID pengguna dan ID kursus
 func (r *EnrollmentRepository) FindByUserAndCourse(userID, courseID uint) (*models.Enrollment, error) {
 	var enrollment models.Enrollment
 	result := r.DB.Where("user_id = ? AND course_id = ?", userID, courseID).First(&enrollment)
@@ -43,26 +44,26 @@ func (r *EnrollmentRepository) FindByUserAndCourse(userID, courseID uint) (*mode
 	return &enrollment, nil
 }
 
-// FindByUser finds enrollments by user ID
+// FindByUser menemukan pendaftaran berdasarkan ID pengguna
 func (r *EnrollmentRepository) FindByUser(userID uint) ([]models.Enrollment, error) {
 	var enrollments []models.Enrollment
 	result := r.DB.Where("user_id = ?", userID).Preload("Course").Find(&enrollments)
 	return enrollments, result.Error
 }
 
-// FindByCourse finds enrollments by course ID
+// FindByCourse menemukan pendaftaran berdasarkan ID kursus
 func (r *EnrollmentRepository) FindByCourse(courseID uint) ([]models.Enrollment, error) {
 	var enrollments []models.Enrollment
 	result := r.DB.Where("course_id = ?", courseID).Preload("User").Find(&enrollments)
 	return enrollments, result.Error
 }
 
-// Create creates a new enrollment
+// Buat membuat pendaftaran baru
 func (r *EnrollmentRepository) Create(enrollment *models.Enrollment) error {
 	return r.DB.Create(enrollment).Error
 }
 
-// Delete deletes an enrollment
+// Hapus menghapus pendaftaran
 func (r *EnrollmentRepository) Delete(id uint) error {
 	return r.DB.Delete(&models.Enrollment{}, id).Error
 }

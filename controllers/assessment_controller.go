@@ -9,32 +9,32 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-// AssessmentController handles assessment requests
+// AssessmentController menangani permintaan penilaian
 type AssessmentController struct {
 	AssessmentService *services.AssessmentService
 }
 
-// NewAssessmentController creates a new assessment controller
+// NewAssessmentController untuk pengontrol penilaian baru
 func NewAssessmentController(assessmentService *services.AssessmentService) *AssessmentController {
 	return &AssessmentController{
 		AssessmentService: assessmentService,
 	}
 }
 
-// CreateAssessmentRequest represents a request to create a new assessment
+// CreateAssessmentRequest  untuk membuat penilaian baru
 type CreateAssessmentRequest struct {
 	SubmissionID uint   `json:"submission_id" binding:"required"`
 	Score        *int   `json:"score"`
 	Feedback     string `json:"feedback"`
 }
 
-// UpdateAssessmentRequest represents a request to update an assessment
+// UpdateAssessmentRequest  untuk memperbarui penilaian
 type UpdateAssessmentRequest struct {
 	Score    *int   `json:"score"`
 	Feedback string `json:"feedback"`
 }
 
-// CreateAssessment handles assessment creation
+// CreateAssessment menangani pembuatan penilaian baru
 func (c *AssessmentController) CreateAssessment(ctx *gin.Context) {
 	var request CreateAssessmentRequest
 	if err := ctx.ShouldBindJSON(&request); err != nil {
@@ -59,7 +59,7 @@ func (c *AssessmentController) CreateAssessment(ctx *gin.Context) {
 	})
 }
 
-// GetAssessmentByID handles getting an assessment by ID
+// GetAssessmentByID untuk mendapatkan penilaian berdasarkan ID
 func (c *AssessmentController) GetAssessmentByID(ctx *gin.Context) {
 	id, err := strconv.ParseUint(ctx.Param("id"), 10, 32)
 	if err != nil {
@@ -76,7 +76,7 @@ func (c *AssessmentController) GetAssessmentByID(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, assessment)
 }
 
-// GetAssessmentBySubmission handles getting an assessment by submission ID
+// GetAssessmentBySubmission  mendapatkan penilaian berdasarkan submisionid
 func (c *AssessmentController) GetAssessmentBySubmission(ctx *gin.Context) {
 	submissionID, err := strconv.ParseUint(ctx.Param("submission_id"), 10, 32)
 	if err != nil {
@@ -93,7 +93,7 @@ func (c *AssessmentController) GetAssessmentBySubmission(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, assessment)
 }
 
-// UpdateAssessment handles updating an assessment
+// UpdateAssessment untuk pembaruan penilaian
 func (c *AssessmentController) UpdateAssessment(ctx *gin.Context) {
 	id, err := strconv.ParseUint(ctx.Param("id"), 10, 32)
 	if err != nil {
@@ -123,7 +123,7 @@ func (c *AssessmentController) UpdateAssessment(ctx *gin.Context) {
 	})
 }
 
-// DeleteAssessment handles deleting an assessment
+// DeleteAssessment untuk penghapusan penilaian
 func (c *AssessmentController) DeleteAssessment(ctx *gin.Context) {
 	id, err := strconv.ParseUint(ctx.Param("id"), 10, 32)
 	if err != nil {

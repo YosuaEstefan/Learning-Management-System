@@ -12,7 +12,7 @@ import (
 	"gorm.io/gorm/logger"
 )
 
-// DBConfig represents database configuration
+// DBConfig konfigurasi basis data
 type DBConfig struct {
 	Host     string
 	Port     string
@@ -21,7 +21,7 @@ type DBConfig struct {
 	DBName   string
 }
 
-// BuildDBConfig creates database configuration from environment variables
+// BuildDBConfig membuat konfigurasi basis data dari variabel lingkungan
 func BuildDBConfig() *DBConfig {
 	dbConfig := DBConfig{
 		Host:     getEnv("DB_HOST", "localhost"),
@@ -33,7 +33,7 @@ func BuildDBConfig() *DBConfig {
 	return &dbConfig
 }
 
-// Helper function to get environment variables with default fallback
+// Fungsi pembantu untuk mendapatkan variabel lingkungan dengan fallback default
 func getEnv(key, fallback string) string {
 	if value, exists := os.LookupEnv(key); exists {
 		return value
@@ -41,7 +41,7 @@ func getEnv(key, fallback string) string {
 	return fallback
 }
 
-// DbURL returns database connection string
+// DbURL mengembalikan string koneksi database
 func DbURL(dbConfig *DBConfig) string {
 	return fmt.Sprintf(
 		"%s:%s@tcp(%s:%s)/%s?charset=utf8mb4&parseTime=True&loc=Local",
@@ -53,26 +53,26 @@ func DbURL(dbConfig *DBConfig) string {
 	)
 }
 
-// InitDB initializes database connection
+// InitDB menginisialisasi koneksi database
 func InitDB() (*gorm.DB, error) {
 	dbConfig := BuildDBConfig()
 	dsn := DbURL(dbConfig)
 
-	// Configure logger
+	// Konfigurasikan  logger
 	newLogger := logger.New(
-		log.New(os.Stdout, "\r\n", log.LstdFlags), // io writer
+		log.New(os.Stdout, "\r\n", log.LstdFlags), //mencatat io
 		logger.Config{
-			SlowThreshold:             time.Second, // Slow SQL threshold
-			LogLevel:                  logger.Info, // Log level (change to logger.Silent in production)
-			IgnoreRecordNotFoundError: true,        // Ignore ErrRecordNotFound error for logger
-			Colorful:                  true,        // Disable color
+			SlowThreshold:             time.Second, // Ambang batas SQL
+			LogLevel:                  logger.Info, // Level log (ubah ke logger.Silent dalam produksi)
+			IgnoreRecordNotFoundError: true,        // Abaikan kesalahan ErrRecordNotFound untuk pencatat
+			Colorful:                  true,        // Nonaktifkan warna
 		},
 	)
 
-	// Open connection to database with modified configuration
+	//Buka koneksi ke database dengan konfigurasi yang dimodifikasi
 	db, err := gorm.Open(mysql.New(mysql.Config{
 		DSN:                      dsn,
-		DisableDatetimePrecision: true, // Disable datetime precision to fix the error
+		DisableDatetimePrecision: true, // Nonaktifkan presisi waktu data untuk memperbaiki kesalahan
 	}), &gorm.Config{
 		Logger: newLogger,
 	})
@@ -81,10 +81,11 @@ func InitDB() (*gorm.DB, error) {
 		return nil, err
 	}
 
-	// Reset SQL mode to ensure compatibility
+	//Atur ulang mode SQL untuk memastikan kompatibilitas
 	db.Exec("SET @@sql_mode=''")
 
-	// Auto migrate the schema
+	// migrasi basis data
+	// Menggunakan AutoMigrate untuk membuat tabel dan kolom yang diperlukan
 	err = db.AutoMigrate(
 		&models.User{},
 		&models.Course{},

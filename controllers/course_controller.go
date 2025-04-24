@@ -7,34 +7,35 @@ import (
 	"strconv"
 
 	"github.com/gin-gonic/gin"
+
 )
 
-// CourseController handles course requests
+// CourseController menangani permintaan kursus
 type CourseController struct {
 	CourseService *services.CourseService
 }
 
-// NewCourseController creates a new course controller
+// NewCourseController membuat pengontrol kursus baru
 func NewCourseController(courseService *services.CourseService) *CourseController {
 	return &CourseController{
 		CourseService: courseService,
 	}
 }
 
-// CreateCourseRequest represents a request to create a new course
+// CreateCourseRequest mewakili permintaan untuk membuat kursus baru
 type CreateCourseRequest struct {
 	Title       string `json:"title" binding:"required"`
 	Description string `json:"description"`
 	MentorID    uint   `json:"mentor_id" binding:"required"`
 }
 
-// UpdateCourseRequest represents a request to update a course
+// UpdateCourseRequest mewakili permintaan untuk memperbarui kursus
 type UpdateCourseRequest struct {
 	Title       string `json:"title" binding:"required"`
 	Description string `json:"description"`
 }
 
-// CreateCourse handles course creation
+// CreateCourse menangani pembuatan kursus
 func (c *CourseController) CreateCourse(ctx *gin.Context) {
 	var request CreateCourseRequest
 	if err := ctx.ShouldBindJSON(&request); err != nil {
@@ -59,7 +60,7 @@ func (c *CourseController) CreateCourse(ctx *gin.Context) {
 	})
 }
 
-// GetCourseByID handles getting a course by ID
+// GetCourseByID menangani pengambilan kursus berdasarkan ID
 func (c *CourseController) GetCourseByID(ctx *gin.Context) {
 	id, err := strconv.ParseUint(ctx.Param("id"), 10, 32)
 	if err != nil {
@@ -76,7 +77,7 @@ func (c *CourseController) GetCourseByID(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, course)
 }
 
-// UpdateCourse handles updating a course
+// UpdateCourse menangani pembaruan kursus
 func (c *CourseController) UpdateCourse(ctx *gin.Context) {
 	id, err := strconv.ParseUint(ctx.Param("id"), 10, 32)
 	if err != nil {
@@ -106,7 +107,7 @@ func (c *CourseController) UpdateCourse(ctx *gin.Context) {
 	})
 }
 
-// DeleteCourse handles deleting a course
+// DeleteCourse menangani penghapusan kursus
 func (c *CourseController) DeleteCourse(ctx *gin.Context) {
 	id, err := strconv.ParseUint(ctx.Param("id"), 10, 32)
 	if err != nil {
@@ -124,7 +125,7 @@ func (c *CourseController) DeleteCourse(ctx *gin.Context) {
 	})
 }
 
-// GetAllCourses handles getting all courses
+// GetAllCourses menangani pengambilan semua kursus
 func (c *CourseController) GetAllCourses(ctx *gin.Context) {
 	limit, _ := strconv.Atoi(ctx.DefaultQuery("limit", "10"))
 	offset, _ := strconv.Atoi(ctx.DefaultQuery("offset", "0"))
@@ -138,7 +139,7 @@ func (c *CourseController) GetAllCourses(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, courses)
 }
 
-// GetCoursesByMentor handles getting courses by mentor ID
+// GetCoursesByMentor menangani perolehan kursus berdasarkan ID mentor
 func (c *CourseController) GetCoursesByMentor(ctx *gin.Context) {
 	mentorID, err := strconv.ParseUint(ctx.Param("mentor_id"), 10, 32)
 	if err != nil {

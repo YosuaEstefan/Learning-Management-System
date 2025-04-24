@@ -6,15 +6,16 @@ import (
 	"errors"
 	"path/filepath"
 	"time"
+
 )
 
-// MaterialService handles material business logic
+// MaterialService menangani logika bisnis material
 type MaterialService struct {
 	MaterialRepo *repositories.MaterialRepository
 	CourseRepo   *repositories.CourseRepository
 }
 
-// NewMaterialService creates a new material service
+// NewMaterialService membuat layanan material baru
 func NewMaterialService(materialRepo *repositories.MaterialRepository, courseRepo *repositories.CourseRepository) *MaterialService {
 	return &MaterialService{
 		MaterialRepo: materialRepo,
@@ -22,44 +23,44 @@ func NewMaterialService(materialRepo *repositories.MaterialRepository, courseRep
 	}
 }
 
-// CreateMaterial creates a new material
+// CreateMaterial membuat materi baru
 func (s *MaterialService) CreateMaterial(material *models.Material, filePath string) error {
-	// Verify the course exists
+	// Verifikasi keberadaan kursus
 	_, err := s.CourseRepo.FindByID(material.CourseID)
 	if err != nil {
 		return errors.New("course not found")
 	}
 
-	// Set the file path and uploaded date
+	// Mengatur jalur file dan tanggal pengunggahan
 	material.FilePath = filePath
 	material.UploadedAt = time.Now()
 
-	// Create the material
+	// Buat materi
 	return s.MaterialRepo.Create(material)
 }
 
-// GetMaterialByID gets a material by ID
+// GetMaterialByID mendapatkan material dengan ID
 func (s *MaterialService) GetMaterialByID(id uint) (*models.Material, error) {
 	return s.MaterialRepo.FindByID(id)
 }
 
-// GetMaterialsByCourse gets materials by course ID
+// GetMaterialsByCourse mendapatkan materi berdasarkan ID kursus
 func (s *MaterialService) GetMaterialsByCourse(courseID uint) ([]models.Material, error) {
 	return s.MaterialRepo.FindByCourse(courseID)
 }
 
-// UpdateMaterial updates a material
+// UpdateMaterial memperbarui materi
 func (s *MaterialService) UpdateMaterial(material *models.Material, filePath string) error {
-	// Verify the material exists
+	// Verifikasi materi yang ada
 	existingMaterial, err := s.MaterialRepo.FindByID(material.ID)
 	if err != nil {
 		return err
 	}
 
-	// Update only allowed fields
+	// Perbarui hanya bidang yang diizinkan
 	existingMaterial.Title = material.Title
 
-	// If a new file is provided, update the file path
+	// Jika file baru disediakan, perbarui jalur file
 	if filePath != "" {
 		existingMaterial.FilePath = filePath
 	}
@@ -67,12 +68,12 @@ func (s *MaterialService) UpdateMaterial(material *models.Material, filePath str
 	return s.MaterialRepo.Update(existingMaterial)
 }
 
-// DeleteMaterial deletes a material
+// DeleteMaterial menghapus material
 func (s *MaterialService) DeleteMaterial(id uint) error {
 	return s.MaterialRepo.Delete(id)
 }
 
-// GetFileExtension gets the file extension from a file path
+// GetFileExtension mendapatkan ekstensi file dari jalur file
 func (s *MaterialService) GetFileExtension(filename string) string {
 	return filepath.Ext(filename)
 }

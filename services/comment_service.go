@@ -5,9 +5,10 @@ import (
 	"LMS/repositories"
 	"errors"
 	"time"
+
 )
 
-// CommentService handles comment business logic
+// CommentService menangani logika bisnis komentar
 type CommentService struct {
 	CommentRepo    *repositories.CommentRepository
 	DiscussionRepo *repositories.DiscussionRepository
@@ -16,7 +17,7 @@ type CommentService struct {
 	EnrollmentRepo *repositories.EnrollmentRepository
 }
 
-// NewCommentService creates a new comment service
+// NewCommentService membuat layanan komentar baru
 func NewCommentService(
 	commentRepo *repositories.CommentRepository,
 	discussionRepo *repositories.DiscussionRepository,
@@ -33,21 +34,21 @@ func NewCommentService(
 	}
 }
 
-// CreateComment creates a new comment
+// CreateComment membuat komentar baru
 func (s *CommentService) CreateComment(comment *models.Comment) error {
-	// Verify the discussion exists
+	// Verifikasi adanya diskusi
 	discussion, err := s.DiscussionRepo.FindByID(comment.DiscussionID)
 	if err != nil {
 		return errors.New("discussion not found")
 	}
 
-	// Verify the user exists
+	// Verifikasi keberadaan pengguna
 	user, err := s.UserRepo.FindByID(comment.UserID)
 	if err != nil {
 		return errors.New("user not found")
 	}
 
-	// If user is a student, verify enrollment
+	// Jika pengguna adalah siswa, verifikasi pendaftaran
 	if user.Role == models.RoleStudent {
 		_, err = s.EnrollmentRepo.FindByUserAndCourse(comment.UserID, discussion.CourseID)
 		if err != nil {
@@ -55,51 +56,48 @@ func (s *CommentService) CreateComment(comment *models.Comment) error {
 		}
 	}
 
-	// Set creation date
+	// Tetapkan tanggal pembuatan
 	comment.CreatedAt = time.Now()
-
-	// Create the comment
+	// Buat komentar
 	return s.CommentRepo.Create(comment)
 }
 
-// GetCommentByID gets a comment by ID
+// GetCommentByID mendapatkan komentar berdasarkan ID
 func (s *CommentService) GetCommentByID(id uint) (*models.Comment, error) {
 	return s.CommentRepo.FindByID(id)
 }
 
-// GetCommentsByDiscussion gets comments by discussion ID
+// GetCommentsByDiscussion mendapatkan komentar berdasarkan ID diskusi
 func (s *CommentService) GetCommentsByDiscussion(discussionID uint) ([]models.Comment, error) {
 	return s.CommentRepo.FindByDiscussion(discussionID)
 }
 
-// UpdateComment updates a comment
+// UpdateComment memperbarui komentar
 func (s *CommentService) UpdateComment(comment *models.Comment) error {
-	// Verify the comment exists
+	// Verifikasi bahwa komentar tersebut ada
 	existingComment, err := s.CommentRepo.FindByID(comment.ID)
 	if err != nil {
 		return err
 	}
 
-	// Verify the user owns the comment
+	// Verifikasi pengguna yang memiliki komentar
 	if existingComment.UserID != comment.UserID {
 		return errors.New("user does not own this comment")
 	}
-
-	// Update only allowed fields
+	// Perbarui hanya bidang yang diizinkan
 	existingComment.Content = comment.Content
 
 	return s.CommentRepo.Update(existingComment)
 }
 
-// DeleteComment deletes a comment
+// DeleteComment menghapus komentar
 func (s *CommentService) DeleteComment(id uint, userID uint, isAdmin bool) error {
-	// Verify the comment exists
+	// Verifikasi bahwa komentar tersebut ada
 	comment, err := s.CommentRepo.FindByID(id)
 	if err != nil {
 		return err
 	}
-
-	// Verify the user owns the comment or is an admin
+	// Verifikasi pengguna yang memiliki komentar atau admin
 	if !isAdmin && comment.UserID != userID {
 		return errors.New("user does not own this comment")
 	}

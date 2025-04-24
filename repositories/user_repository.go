@@ -5,19 +5,20 @@ import (
 	"errors"
 
 	"gorm.io/gorm"
+
 )
 
-// UserRepository handles database operations for users
+// UserRepository menangani operasi basis data untuk pengguna
 type UserRepository struct {
 	DB *gorm.DB
 }
 
-// NewUserRepository creates a new user repository
+// NewUserRepository membuat repositori pengguna baru
 func NewUserRepository(db *gorm.DB) *UserRepository {
 	return &UserRepository{DB: db}
 }
 
-// FindByID finds a user by ID
+// FindByID menemukan pengguna berdasarkan ID
 func (r *UserRepository) FindByID(id uint) (*models.User, error) {
 	var user models.User
 	result := r.DB.First(&user, id)
@@ -30,7 +31,7 @@ func (r *UserRepository) FindByID(id uint) (*models.User, error) {
 	return &user, nil
 }
 
-// FindByEmail finds a user by email
+// FindByEmail menemukan pengguna melalui email
 func (r *UserRepository) FindByEmail(email string) (*models.User, error) {
 	var user models.User
 	result := r.DB.Where("email = ?", email).First(&user)
@@ -43,22 +44,22 @@ func (r *UserRepository) FindByEmail(email string) (*models.User, error) {
 	return &user, nil
 }
 
-// Create creates a new user
+// Buat membuat pengguna baru
 func (r *UserRepository) Create(user *models.User) error {
 	return r.DB.Create(user).Error
 }
 
-// Update updates an existing user
+// Memperbarui memperbarui pengguna yang ada
 func (r *UserRepository) Update(user *models.User) error {
 	return r.DB.Save(user).Error
 }
 
-// Delete deletes a user
+// Hapus menghapus pengguna
 func (r *UserRepository) Delete(id uint) error {
 	return r.DB.Delete(&models.User{}, id).Error
 }
 
-// ListAll lists all users
+// ListAll mencantumkan semua pengguna
 func (r *UserRepository) ListAll(limit, offset int) ([]models.User, error) {
 	var users []models.User
 	result := r.DB.Limit(limit).Offset(offset).Find(&users)

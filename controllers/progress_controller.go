@@ -1,4 +1,3 @@
-// controllers/progress_controller.go
 package controllers
 
 import (
@@ -8,21 +7,22 @@ import (
 	"strconv"
 
 	"github.com/gin-gonic/gin"
+
 )
 
-// ProgressController handles learning progress requests
+// ProgressController menangani permintaan kemajuan pembelajaran
 type ProgressController struct {
 	ProgressService *services.LearningProgressService
 }
 
-// NewProgressController creates a new progress controller
+// NewProgressController membuat pengontrol progres baru
 func NewProgressController(progressService *services.LearningProgressService) *ProgressController {
 	return &ProgressController{
 		ProgressService: progressService,
 	}
 }
 
-// GradeRequest represents a request to grade a student's activity
+// GradeRequest merupakan permintaan untuk menilai aktivitas siswa
 type GradeRequest struct {
 	StudentID    uint                `json:"student_id" binding:"required"`
 	CourseID     uint                `json:"course_id" binding:"required"`
@@ -34,7 +34,7 @@ type GradeRequest struct {
 	Completed    bool                `json:"completed"`
 }
 
-// UpdateGradeRequest represents a request to update a grade
+// UpdateGradeRequest merepresentasikan permintaan untuk memperbarui nilai
 type UpdateGradeRequest struct {
 	Score     float64 `json:"score" binding:"required"`
 	MaxScore  float64 `json:"max_score" binding:"required"`
@@ -42,7 +42,7 @@ type UpdateGradeRequest struct {
 	Completed bool    `json:"completed"`
 }
 
-// GradeActivity handles the grading of a student's activity
+// GradeActivity menangani penilaian aktivitas siswa
 func (c *ProgressController) GradeActivity(ctx *gin.Context) {
 	var request GradeRequest
 	if err := ctx.ShouldBindJSON(&request); err != nil {
@@ -50,7 +50,7 @@ func (c *ProgressController) GradeActivity(ctx *gin.Context) {
 		return
 	}
 
-	// Get grader ID from context
+	// Dapatkan ID grader dari konteks
 	graderID, _ := ctx.Get("userID")
 
 	err := c.ProgressService.CreateOrUpdateGrade(
@@ -75,7 +75,7 @@ func (c *ProgressController) GradeActivity(ctx *gin.Context) {
 	})
 }
 
-// GetProgressByID handles getting a learning progress by ID
+// GetProgressByID menangani mendapatkan kemajuan pembelajaran berdasarkan ID
 func (c *ProgressController) GetProgressByID(ctx *gin.Context) {
 	id, err := strconv.ParseUint(ctx.Param("id"), 10, 32)
 	if err != nil {
@@ -92,7 +92,7 @@ func (c *ProgressController) GetProgressByID(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, progress)
 }
 
-// GetStudentProgress handles getting all progress for a student in a course
+// GetStudentProgress menangani mendapatkan semua kemajuan siswa dalam sebuah kursus
 func (c *ProgressController) GetStudentProgress(ctx *gin.Context) {
 	studentID, err := strconv.ParseUint(ctx.Param("student_id"), 10, 32)
 	if err != nil {
@@ -115,7 +115,7 @@ func (c *ProgressController) GetStudentProgress(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, progress)
 }
 
-// GetCourseStudentsProgress handles getting progress for all students in a course
+// GetCourseStudentsProgress menangani mendapatkan kemajuan untuk semua siswa dalam sebuah kursus
 func (c *ProgressController) GetCourseStudentsProgress(ctx *gin.Context) {
 	courseID, err := strconv.ParseUint(ctx.Param("course_id"), 10, 32)
 	if err != nil {
@@ -123,7 +123,7 @@ func (c *ProgressController) GetCourseStudentsProgress(ctx *gin.Context) {
 		return
 	}
 
-	// Get requester ID from context
+	// Dapatkan ID pemohon dari konteks
 	requestorID, _ := ctx.Get("userID")
 
 	progress, err := c.ProgressService.GetCourseStudentsProgress(uint(courseID), requestorID.(uint))
@@ -135,7 +135,7 @@ func (c *ProgressController) GetCourseStudentsProgress(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, progress)
 }
 
-// UpdateGradeByMentor handles updating a grade by a mentor
+// UpdateGradeByMentor menangani pembaruan nilai oleh mentor
 func (c *ProgressController) UpdateGradeByMentor(ctx *gin.Context) {
 	progressID, err := strconv.ParseUint(ctx.Param("progress_id"), 10, 32)
 	if err != nil {
@@ -149,7 +149,7 @@ func (c *ProgressController) UpdateGradeByMentor(ctx *gin.Context) {
 		return
 	}
 
-	// Get mentor ID from context
+	// Dapatkan ID mentor dari konteks
 	mentorID, _ := ctx.Get("userID")
 
 	err = c.ProgressService.UpdateGradeByMentor(

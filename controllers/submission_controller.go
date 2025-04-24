@@ -10,27 +10,28 @@ import (
 	"time"
 
 	"github.com/gin-gonic/gin"
+
 )
 
-// SubmissionController handles submission requests
+// SubmissionController menangani permintaan pengiriman
 type SubmissionController struct {
 	SubmissionService *services.SubmissionService
 }
 
-// NewSubmissionController creates a new submission controller
+// NewSubmissionController membuat pengontrol pengiriman baru
 func NewSubmissionController(submissionService *services.SubmissionService) *SubmissionController {
 	return &SubmissionController{
 		SubmissionService: submissionService,
 	}
 }
 
-// CreateSubmissionRequest represents a request to create a new submission
+// CreateSubmissionRequest mewakili permintaan untuk membuat kiriman baru
 type CreateSubmissionRequest struct {
 	AssignmentID uint `form:"assignment_id" binding:"required"`
 	StudentID    uint `form:"student_id" binding:"required"`
 }
 
-// CreateSubmission handles submission creation
+// CreateSubmission menangani pembuatan kiriman
 func (c *SubmissionController) CreateSubmission(ctx *gin.Context) {
 	var request CreateSubmissionRequest
 	if err := ctx.ShouldBind(&request); err != nil {
@@ -38,19 +39,19 @@ func (c *SubmissionController) CreateSubmission(ctx *gin.Context) {
 		return
 	}
 
-	// Get file from form
+	// Dapatkan file dari formulir
 	file, err := ctx.FormFile("file")
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{"error": "File is required"})
 		return
 	}
 
-	// Generate unique filename
+	// Hasilkan nama file yang unik
 	extension := filepath.Ext(file.Filename)
 	filename := fmt.Sprintf("submission_%d_%d_%s%s", request.AssignmentID, request.StudentID, time.Now().Format("20060102150405"), extension)
 	filePath := filepath.Join("uploads/submissions", filename)
 
-	// Save file to disk
+	// Menyimpan file ke disk
 	if err := ctx.SaveUploadedFile(file, filePath); err != nil {
 		ctx.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to save file"})
 		return
@@ -72,7 +73,7 @@ func (c *SubmissionController) CreateSubmission(ctx *gin.Context) {
 	})
 }
 
-// GetSubmissionByID handles getting a submission by ID
+// GetSubmissionByID menangani mendapatkan kiriman dengan ID
 func (c *SubmissionController) GetSubmissionByID(ctx *gin.Context) {
 	id, err := strconv.ParseUint(ctx.Param("id"), 10, 32)
 	if err != nil {
@@ -89,7 +90,7 @@ func (c *SubmissionController) GetSubmissionByID(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, submission)
 }
 
-// GetSubmissionsByAssignment handles getting submissions by assignment ID
+// GetSubmissionsByAssignment menangani mendapatkan kiriman berdasarkan ID penugasan
 func (c *SubmissionController) GetSubmissionsByAssignment(ctx *gin.Context) {
 	assignmentID, err := strconv.ParseUint(ctx.Param("assignment_id"), 10, 32)
 	if err != nil {
@@ -106,7 +107,7 @@ func (c *SubmissionController) GetSubmissionsByAssignment(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, submissions)
 }
 
-// GetSubmissionsByStudent handles getting submissions by student ID
+// GetSubmissionsByStudent menangani pengambilan kiriman berdasarkan ID siswa
 func (c *SubmissionController) GetSubmissionsByStudent(ctx *gin.Context) {
 	studentID, err := strconv.ParseUint(ctx.Param("student_id"), 10, 32)
 	if err != nil {
@@ -123,7 +124,7 @@ func (c *SubmissionController) GetSubmissionsByStudent(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, submissions)
 }
 
-// DeleteSubmission handles deleting a submission
+// DeleteSubmission menangani penghapusan kiriman
 func (c *SubmissionController) DeleteSubmission(ctx *gin.Context) {
 	id, err := strconv.ParseUint(ctx.Param("id"), 10, 32)
 	if err != nil {
@@ -141,7 +142,7 @@ func (c *SubmissionController) DeleteSubmission(ctx *gin.Context) {
 	})
 }
 
-// DownloadSubmission handles downloading a submission
+// DownloadSubmission menangani pengunduhan kiriman
 func (c *SubmissionController) DownloadSubmission(ctx *gin.Context) {
 	id, err := strconv.ParseUint(ctx.Param("id"), 10, 32)
 	if err != nil {
@@ -155,7 +156,7 @@ func (c *SubmissionController) DownloadSubmission(ctx *gin.Context) {
 		return
 	}
 
-	// Set filename for download
+	// Tetapkan nama file untuk diunduh
 	filename := fmt.Sprintf("submission_%d%s", submission.ID, filepath.Ext(submission.FilePath))
 	ctx.FileAttachment(submission.FilePath, filename)
 }

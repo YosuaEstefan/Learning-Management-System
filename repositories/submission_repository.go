@@ -5,19 +5,20 @@ import (
 	"errors"
 
 	"gorm.io/gorm"
+
 )
 
-// SubmissionRepository handles database operations for submissions
+// SubmissionRepository menangani operasi basis data untuk pengiriman
 type SubmissionRepository struct {
 	DB *gorm.DB
 }
 
-// NewSubmissionRepository creates a new submission repository
+// NewSubmissionRepository membuat repositori pengajuan baru
 func NewSubmissionRepository(db *gorm.DB) *SubmissionRepository {
 	return &SubmissionRepository{DB: db}
 }
 
-// FindByID finds a submission by ID
+// FindByID menemukan kiriman berdasarkan ID
 func (r *SubmissionRepository) FindByID(id uint) (*models.Submission, error) {
 	var submission models.Submission
 	result := r.DB.First(&submission, id)
@@ -30,21 +31,21 @@ func (r *SubmissionRepository) FindByID(id uint) (*models.Submission, error) {
 	return &submission, nil
 }
 
-// FindByAssignment finds submissions by assignment ID
+// FindByAssignment menemukan kiriman berdasarkan ID penugasan
 func (r *SubmissionRepository) FindByAssignment(assignmentID uint) ([]models.Submission, error) {
 	var submissions []models.Submission
 	result := r.DB.Where("assignment_id = ?", assignmentID).Preload("Student").Find(&submissions)
 	return submissions, result.Error
 }
 
-// FindByStudent finds submissions by student ID
+// FindByStudent menemukan kiriman berdasarkan ID siswa
 func (r *SubmissionRepository) FindByStudent(studentID uint) ([]models.Submission, error) {
 	var submissions []models.Submission
 	result := r.DB.Where("student_id = ?", studentID).Preload("Assignment").Find(&submissions)
 	return submissions, result.Error
 }
 
-// FindByAssignmentAndStudent finds a submission by assignment ID and student ID
+// FindByAssignmentAndStudent menemukan kiriman berdasarkan ID tugas dan ID siswa
 func (r *SubmissionRepository) FindByAssignmentAndStudent(assignmentID, studentID uint) (*models.Submission, error) {
 	var submission models.Submission
 	result := r.DB.Where("assignment_id = ? AND student_id = ?", assignmentID, studentID).First(&submission)
@@ -57,17 +58,17 @@ func (r *SubmissionRepository) FindByAssignmentAndStudent(assignmentID, studentI
 	return &submission, nil
 }
 
-// Create creates a new submission
+// Buat membuat pengajuan baru
 func (r *SubmissionRepository) Create(submission *models.Submission) error {
 	return r.DB.Create(submission).Error
 }
 
-// Update updates an existing submission
+// Perbarui memperbarui kiriman yang sudah ada
 func (r *SubmissionRepository) Update(submission *models.Submission) error {
 	return r.DB.Save(submission).Error
 }
 
-// Delete deletes a submission
+// Hapus menghapus kiriman
 func (r *SubmissionRepository) Delete(id uint) error {
 	return r.DB.Delete(&models.Submission{}, id).Error
 }

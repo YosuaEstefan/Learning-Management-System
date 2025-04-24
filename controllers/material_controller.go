@@ -10,32 +10,33 @@ import (
 	"time"
 
 	"github.com/gin-gonic/gin"
+
 )
 
-// MaterialController handles material requests
+// MaterialController menangani permintaan material
 type MaterialController struct {
 	MaterialService *services.MaterialService
 }
 
-// NewMaterialController creates a new material controller
+// NewMaterialController membuat pengontrol material baru
 func NewMaterialController(materialService *services.MaterialService) *MaterialController {
 	return &MaterialController{
 		MaterialService: materialService,
 	}
 }
 
-// CreateMaterialRequest represents a request to create a new material
+// CreateMaterialRequest mewakili permintaan untuk membuat material baru
 type CreateMaterialRequest struct {
 	CourseID uint   `form:"course_id" binding:"required"`
 	Title    string `form:"title" binding:"required"`
 }
 
-// UpdateMaterialRequest represents a request to update a material
+// UpdateMaterialRequest mewakili permintaan untuk memperbarui material
 type UpdateMaterialRequest struct {
 	Title string `form:"title" binding:"required"`
 }
 
-// CreateMaterial handles material creation
+// CreateMaterial menangani pembuatan material
 func (c *MaterialController) CreateMaterial(ctx *gin.Context) {
 	var request CreateMaterialRequest
 	if err := ctx.ShouldBind(&request); err != nil {
@@ -43,19 +44,19 @@ func (c *MaterialController) CreateMaterial(ctx *gin.Context) {
 		return
 	}
 
-	// Get file from form
+	// Dapatkan file dari formulir
 	file, err := ctx.FormFile("file")
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{"error": "File is required"})
 		return
 	}
 
-	// Generate unique filename
+	// Hasilkan nama file yang unik
 	extension := filepath.Ext(file.Filename)
 	filename := fmt.Sprintf("material_%d_%s%s", request.CourseID, time.Now().Format("20060102150405"), extension)
 	filePath := filepath.Join("uploads/materials", filename)
 
-	// Save file to disk
+	// Simpan file ke disk
 	if err := ctx.SaveUploadedFile(file, filePath); err != nil {
 		ctx.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to save file"})
 		return
@@ -77,7 +78,7 @@ func (c *MaterialController) CreateMaterial(ctx *gin.Context) {
 	})
 }
 
-// GetMaterialByID handles getting a material by ID
+// GetMaterialByID menangani pengambilan material berdasarkan ID
 func (c *MaterialController) GetMaterialByID(ctx *gin.Context) {
 	id, err := strconv.ParseUint(ctx.Param("id"), 10, 32)
 	if err != nil {
@@ -111,7 +112,7 @@ func (c *MaterialController) GetMaterialsByCourse(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, materials)
 }
 
-// UpdateMaterial handles updating a material
+// UpdateMaterial menangani pembaruan material
 func (c *MaterialController) UpdateMaterial(ctx *gin.Context) {
 	id, err := strconv.ParseUint(ctx.Param("id"), 10, 32)
 	if err != nil {
@@ -133,12 +134,12 @@ func (c *MaterialController) UpdateMaterial(ctx *gin.Context) {
 	filePath := ""
 	file, err := ctx.FormFile("file")
 	if err == nil {
-		// Generate unique filename
+		// Hasilkan nama file yang unik
 		extension := filepath.Ext(file.Filename)
 		filename := fmt.Sprintf("material_%d_%s%s", id, time.Now().Format("20060102150405"), extension)
 		filePath = filepath.Join("uploads/materials", filename)
 
-		// Save file to disk
+		// Simpan file ke disk
 		if err := ctx.SaveUploadedFile(file, filePath); err != nil {
 			ctx.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to save file"})
 			return
@@ -155,7 +156,7 @@ func (c *MaterialController) UpdateMaterial(ctx *gin.Context) {
 	})
 }
 
-// DeleteMaterial handles deleting a material
+// DeleteMaterial menangani penghapusan material
 func (c *MaterialController) DeleteMaterial(ctx *gin.Context) {
 	id, err := strconv.ParseUint(ctx.Param("id"), 10, 32)
 	if err != nil {
@@ -173,7 +174,7 @@ func (c *MaterialController) DeleteMaterial(ctx *gin.Context) {
 	})
 }
 
-// DownloadMaterial handles downloading a material
+// DownloadMaterial menangani pengunduhan material
 func (c *MaterialController) DownloadMaterial(ctx *gin.Context) {
 	id, err := strconv.ParseUint(ctx.Param("id"), 10, 32)
 	if err != nil {
@@ -187,7 +188,7 @@ func (c *MaterialController) DownloadMaterial(ctx *gin.Context) {
 		return
 	}
 
-	// Set filename for download
+	// Tetapkan nama file untuk diunduh
 	filename := fmt.Sprintf("%s%s", material.Title, filepath.Ext(material.FilePath))
 	ctx.FileAttachment(material.FilePath, filename)
 }

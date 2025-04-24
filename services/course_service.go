@@ -4,15 +4,16 @@ import (
 	"LMS/models"
 	"LMS/repositories"
 	"errors"
+
 )
 
-// CourseService handles course business logic
+// CourseService menangani logika bisnis kursus
 type CourseService struct {
 	CourseRepo *repositories.CourseRepository
 	UserRepo   *repositories.UserRepository
 }
 
-// NewCourseService creates a new course service
+// NewCourseService membuat layanan kursus baru
 func NewCourseService(courseRepo *repositories.CourseRepository, userRepo *repositories.UserRepository) *CourseService {
 	return &CourseService{
 		CourseRepo: courseRepo,
@@ -20,54 +21,53 @@ func NewCourseService(courseRepo *repositories.CourseRepository, userRepo *repos
 	}
 }
 
-// CreateCourse creates a new course
+// CreateCourse membuat kursus baru
 func (s *CourseService) CreateCourse(course *models.Course) error {
-	// Verify the mentor exists
+	// Verifikasi keberadaan mentor
 	mentor, err := s.UserRepo.FindByID(course.MentorID)
 	if err != nil {
 		return errors.New("mentor not found")
 	}
 
-	// Verify the mentor has the mentor role
+	// Verifikasi bahwa mentor memiliki peran sebagai mentor
 	if mentor.Role != models.RoleMentor && mentor.Role != models.RoleAdmin {
 		return errors.New("user is not a mentor")
 	}
 
-	// Create the course
+	// Buat kursus
 	return s.CourseRepo.Create(course)
 }
 
-// GetCourseByID gets a course by ID
+// GetCourseByID mendapatkan kursus dengan ID
 func (s *CourseService) GetCourseByID(id uint) (*models.Course, error) {
 	return s.CourseRepo.FindByIDWithDetails(id)
 }
 
-// UpdateCourse updates a course
+// UpdateCourse memperbarui sebuah kursus
 func (s *CourseService) UpdateCourse(course *models.Course) error {
-	// Verify the course exists
+	// Verifikasi keberadaan kursus
 	existingCourse, err := s.CourseRepo.FindByID(course.ID)
 	if err != nil {
 		return err
 	}
 
-	// Update only allowed fields
+	// Perbarui hanya bidang yang diizinkan
 	existingCourse.Title = course.Title
 	existingCourse.Description = course.Description
 
 	return s.CourseRepo.Update(existingCourse)
 }
 
-// DeleteCourse deletes a course
+// DeleteCourse menghapus kursus
 func (s *CourseService) DeleteCourse(id uint) error {
 	return s.CourseRepo.Delete(id)
 }
 
-// GetAllCourses gets all courses with pagination
 func (s *CourseService) GetAllCourses(limit, offset int) ([]models.Course, error) {
 	return s.CourseRepo.ListAll(limit, offset)
 }
 
-// GetCoursesByMentor gets courses by mentor ID
+// GetCoursesByMentor mendapatkan kursus berdasarkan ID mento
 func (s *CourseService) GetCoursesByMentor(mentorID uint, limit, offset int) ([]models.Course, error) {
 	return s.CourseRepo.ListByMentor(mentorID, limit, offset)
 }

@@ -1,4 +1,3 @@
-// repositories/learning_progress_repository.go
 package repositories
 
 import (
@@ -6,19 +5,20 @@ import (
 	"errors"
 
 	"gorm.io/gorm"
+
 )
 
-// LearningProgressRepository handles database operations for learning progress
+// LearningProgressRepository menangani operasi basis data untuk kemajuan pembelajaran
 type LearningProgressRepository struct {
 	DB *gorm.DB
 }
 
-// NewLearningProgressRepository creates a new learning progress repository
+// NewLearningProgressRepository membuat repositori kemajuan pembelajaran baru
 func NewLearningProgressRepository(db *gorm.DB) *LearningProgressRepository {
 	return &LearningProgressRepository{DB: db}
 }
 
-// FindByID finds a learning progress by ID
+// FindByID menemukan kemajuan pembelajaran berdasarkan ID
 func (r *LearningProgressRepository) FindByID(id uint) (*models.LearningProgress, error) {
 	var progress models.LearningProgress
 	result := r.DB.Preload("User").Preload("Course").Preload("Grader").First(&progress, id)
@@ -31,7 +31,7 @@ func (r *LearningProgressRepository) FindByID(id uint) (*models.LearningProgress
 	return &progress, nil
 }
 
-// GetStudentProgress gets all progress for a student in a course
+// GetStudentProgress mendapatkan semua kemajuan siswa dalam sebuah kursus
 func (r *LearningProgressRepository) GetStudentProgress(studentID, courseID uint) ([]models.LearningProgress, error) {
 	var progressItems []models.LearningProgress
 
@@ -44,13 +44,13 @@ func (r *LearningProgressRepository) GetStudentProgress(studentID, courseID uint
 		return nil, result.Error
 	}
 
-	// Populate computed fields that are not directly stored in DB
+	// Mengisi bidang yang dihitung yang tidak disimpan secara langsung di DB
 	for i := range progressItems {
 		if progressItems[i].Grader.ID > 0 {
 			progressItems[i].GraderName = progressItems[i].Grader.Name
 		}
 
-		// Load activity title based on activity type
+		// Memuat judul aktivitas berdasarkan jenis aktivitas
 		switch progressItems[i].ActivityType {
 		case models.ProgressTypeAssignment:
 			var assignment models.Assignment
@@ -81,9 +81,9 @@ func (r *LearningProgressRepository) GetStudentProgress(studentID, courseID uint
 	return progressItems, nil
 }
 
-// GetCourseStudentsProgress gets progress for all students in a course
+// GetCourseStudentsProgress mendapatkan kemajuan untuk semua siswa dalam sebuah kursus
 func (r *LearningProgressRepository) GetCourseStudentsProgress(courseID uint) (map[uint][]models.LearningProgress, error) {
-	// Get all students enrolled in the course
+	// Dapatkan semua siswa yang terdaftar dalam kursus
 	var enrollments []models.Enrollment
 	if err := r.DB.Where("course_id = ?", courseID).Preload("User").Find(&enrollments).Error; err != nil {
 		return nil, err
@@ -91,7 +91,7 @@ func (r *LearningProgressRepository) GetCourseStudentsProgress(courseID uint) (m
 
 	result := make(map[uint][]models.LearningProgress)
 
-	// Get progress for each student
+	// Dapatkan kemajuan untuk setiap siswa
 	for _, enrollment := range enrollments {
 		if enrollment.User.Role != models.RoleStudent {
 			continue
@@ -108,22 +108,22 @@ func (r *LearningProgressRepository) GetCourseStudentsProgress(courseID uint) (m
 	return result, nil
 }
 
-// Create creates a new learning progress
+// Membuat menciptakan kemajuan pembelajaran baru
 func (r *LearningProgressRepository) Create(progress *models.LearningProgress) error {
 	return r.DB.Create(progress).Error
 }
 
-// Update updates an existing learning progress
+// Memperbarui kemajuan pembelajaran yang sudah ada
 func (r *LearningProgressRepository) Update(progress *models.LearningProgress) error {
 	return r.DB.Model(&models.LearningProgress{}).Where("id = ?", progress.ID).Updates(progress).Error
 }
 
-// Delete deletes a learning progress
+// Hapus menghapus kemajuan pembelajaran
 func (r *LearningProgressRepository) Delete(id uint) error {
 	return r.DB.Delete(&models.LearningProgress{}, id).Error
 }
 
-// FindByActivityAndStudent finds progress by activity type, activity ID, and student ID
+// FindByActivityAndStudent menemukan kemajuan berdasarkan jenis aktivitas, ID aktivitas, dan ID siswa
 func (r *LearningProgressRepository) FindByActivityAndStudent(
 	activityType models.ProgressType,
 	activityID uint,

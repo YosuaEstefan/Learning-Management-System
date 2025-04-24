@@ -1,4 +1,3 @@
-// controllers/comment_controller.go
 package controllers
 
 import (
@@ -8,32 +7,33 @@ import (
 	"strconv"
 
 	"github.com/gin-gonic/gin"
+
 )
 
-// CommentController handles comment requests
+// CommentController menangani permintaan komentar
 type CommentController struct {
 	CommentService *services.CommentService
 }
 
-// NewCommentController creates a new comment controller
+// NewCommentController membuat pengontrol komentar baru
 func NewCommentController(commentService *services.CommentService) *CommentController {
 	return &CommentController{
 		CommentService: commentService,
 	}
 }
 
-// CreateCommentRequest represents a request to create a new comment
+// CreateCommentRequest mewakili permintaan untuk membuat komentar baru
 type CreateCommentRequest struct {
 	DiscussionID uint   `json:"discussion_id" binding:"required"`
 	Content      string `json:"content" binding:"required"`
 }
 
-// UpdateCommentRequest represents a request to update a comment
+// UpdateCommentRequest mewakili permintaan untuk memperbarui komentar
 type UpdateCommentRequest struct {
 	Content string `json:"content" binding:"required"`
 }
 
-// CreateComment handles comment creation
+// CreateComment menangani pembuatan komentar
 func (c *CommentController) CreateComment(ctx *gin.Context) {
 	var request CreateCommentRequest
 	if err := ctx.ShouldBindJSON(&request); err != nil {
@@ -60,7 +60,7 @@ func (c *CommentController) CreateComment(ctx *gin.Context) {
 	})
 }
 
-// GetCommentByID handles getting a comment by ID
+// GetCommentByID menangani pengambilan komentar berdasarkan ID
 func (c *CommentController) GetCommentByID(ctx *gin.Context) {
 	id, err := strconv.ParseUint(ctx.Param("id"), 10, 32)
 	if err != nil {
@@ -77,7 +77,7 @@ func (c *CommentController) GetCommentByID(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, comment)
 }
 
-// GetCommentsByDiscussion handles getting comments by discussion ID
+// GetCommentsByDiscussion menangani pengambilan komentar berdasarkan ID diskusi
 func (c *CommentController) GetCommentsByDiscussion(ctx *gin.Context) {
 	discussionID, err := strconv.ParseUint(ctx.Param("discussion_id"), 10, 32)
 	if err != nil {
@@ -94,7 +94,7 @@ func (c *CommentController) GetCommentsByDiscussion(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, comments)
 }
 
-// UpdateComment handles updating a comment
+// UpdateComment menangani pembaruan komentar
 func (c *CommentController) UpdateComment(ctx *gin.Context) {
 	id, err := strconv.ParseUint(ctx.Param("id"), 10, 32)
 	if err != nil {
@@ -126,7 +126,7 @@ func (c *CommentController) UpdateComment(ctx *gin.Context) {
 	})
 }
 
-// DeleteComment handles deleting a comment
+// DeleteComment menangani penghapusan komentar
 func (c *CommentController) DeleteComment(ctx *gin.Context) {
 	id, err := strconv.ParseUint(ctx.Param("id"), 10, 32)
 	if err != nil {

@@ -7,9 +7,10 @@ import (
 	"strings"
 
 	"github.com/gin-gonic/gin"
+
 )
 
-// AuthMiddleware verifies the JWT token and sets the user in the context
+// AuthMiddleware memverifikasi token JWT dan mengatur pengguna dalam konteks
 func AuthMiddleware() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		authHeader := c.GetHeader("Authorization")
@@ -19,7 +20,7 @@ func AuthMiddleware() gin.HandlerFunc {
 			return
 		}
 
-		// Check if the Authorization header has the Bearer prefix
+		// Periksa apakah  Otorisasi memiliki token
 		parts := strings.Split(authHeader, " ")
 		if len(parts) != 2 || parts[0] != "Bearer" {
 			c.JSON(http.StatusUnauthorized, gin.H{"error": "Authorization header format must be Bearer {token}"})
@@ -27,10 +28,10 @@ func AuthMiddleware() gin.HandlerFunc {
 			return
 		}
 
-		// Get the token
+		// dapatkan token
 		tokenString := parts[1]
 
-		// Validate the token
+		// validasi token
 		claims, err := utils.ValidateToken(tokenString)
 		if err != nil {
 			c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid or expired token"})
@@ -38,7 +39,7 @@ func AuthMiddleware() gin.HandlerFunc {
 			return
 		}
 
-		// Set user information in the context
+		// Mengatur informasi pengguna dalam konteks
 		c.Set("userID", claims.UserID)
 		c.Set("email", claims.Email)
 		c.Set("role", claims.Role)
@@ -47,7 +48,7 @@ func AuthMiddleware() gin.HandlerFunc {
 	}
 }
 
-// RoleMiddleware checks if the user has the required role
+// RoleMiddleware memeriksa apakah pengguna memiliki peran yang diperlukan
 func RoleMiddleware(roles ...models.Role) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		userRole, exists := c.Get("role")
@@ -57,7 +58,7 @@ func RoleMiddleware(roles ...models.Role) gin.HandlerFunc {
 			return
 		}
 
-		// Check if the user's role is in the allowed roles
+		// Periksa apakah peran pengguna berada dalam peran yang diizinkan
 		roleAllowed := false
 		for _, role := range roles {
 			if userRole == role {

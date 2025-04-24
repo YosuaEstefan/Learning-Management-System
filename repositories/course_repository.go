@@ -5,19 +5,20 @@ import (
 	"errors"
 
 	"gorm.io/gorm"
+
 )
 
-// CourseRepository handles database operations for courses
+// CourseRepository menangani operasi basis data untuk kursus
 type CourseRepository struct {
 	DB *gorm.DB
 }
 
-// NewCourseRepository creates a new course repository
+// NewCourseRepository membuat repositori kursus baru
 func NewCourseRepository(db *gorm.DB) *CourseRepository {
 	return &CourseRepository{DB: db}
 }
 
-// FindByID finds a course by ID
+// FindByID menemukan kursus berdasarkan ID
 func (r *CourseRepository) FindByID(id uint) (*models.Course, error) {
 	var course models.Course
 	result := r.DB.First(&course, id)
@@ -30,7 +31,7 @@ func (r *CourseRepository) FindByID(id uint) (*models.Course, error) {
 	return &course, nil
 }
 
-// FindByIDWithDetails finds a course by ID and preloads related data
+// FindByIDWithDetails menemukan kursus dengan ID dan memuat data terkait sebelumnya
 func (r *CourseRepository) FindByIDWithDetails(id uint) (*models.Course, error) {
 	var course models.Course
 	result := r.DB.Preload("Mentor").Preload("Materials").Preload("Assignments").First(&course, id)
@@ -43,29 +44,29 @@ func (r *CourseRepository) FindByIDWithDetails(id uint) (*models.Course, error) 
 	return &course, nil
 }
 
-// Create creates a new course
+// Membuat membuat kursus baru
 func (r *CourseRepository) Create(course *models.Course) error {
 	return r.DB.Create(course).Error
 }
 
-// Update updates an existing course
+// Perbarui memperbarui kursus yang sudah ada
 func (r *CourseRepository) Update(course *models.Course) error {
 	return r.DB.Save(course).Error
 }
 
-// Delete deletes a course
+// Hapus menghapus kursus
 func (r *CourseRepository) Delete(id uint) error {
 	return r.DB.Delete(&models.Course{}, id).Error
 }
 
-// ListAll lists all courses
+// ListAll mencantumkan semua kursus
 func (r *CourseRepository) ListAll(limit, offset int) ([]models.Course, error) {
 	var courses []models.Course
 	result := r.DB.Preload("Mentor").Limit(limit).Offset(offset).Find(&courses)
 	return courses, result.Error
 }
 
-// ListByMentor lists courses by mentor ID
+// ListByMentor mencantumkan kursus berdasarkan ID mentor
 func (r *CourseRepository) ListByMentor(mentorID uint, limit, offset int) ([]models.Course, error) {
 	var courses []models.Course
 	result := r.DB.Where("mentor_id = ?", mentorID).Limit(limit).Offset(offset).Find(&courses)

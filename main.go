@@ -9,19 +9,17 @@ import (
 )
 
 func main() {
-	// Set Gin to release mode in production
-	// gin.SetMode(gin.ReleaseMode)
 
-	// Initialize the database
+	// Inisialisasi ke database
 	db, err := config.InitDB()
 	if err != nil {
 		log.Fatalf("Failed to connect to database: %v", err)
 	}
 
-	// Initialize router with database connection
+	// Inisialisasi router dengan koneksi database
 	router := gin.Default()
 
-	// Enable CORS
+	// Mengaktifkan CORS
 	router.Use(func(c *gin.Context) {
 		c.Writer.Header().Set("Access-Control-Allow-Origin", "*")
 		c.Writer.Header().Set("Access-Control-Allow-Credentials", "true")
@@ -36,10 +34,9 @@ func main() {
 		c.Next()
 	})
 
-	// Setup routes
 	routes.SetupRoutes(router, db)
 
-	// Start the server
+	// memulai server
 	log.Println("Server started on :8080")
 	if err := router.Run(":8080"); err != nil {
 		log.Fatalf("Failed to start server: %v", err)

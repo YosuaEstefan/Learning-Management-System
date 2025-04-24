@@ -9,11 +9,12 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"gorm.io/gorm"
+
 )
 
-// SetupRoutes configures the API routes
+// SetupRoutes mengkonfigurasi rute API
 func SetupRoutes(router *gin.Engine, db *gorm.DB) {
-	// Create repositories
+	// Buat repositori
 	userRepo := repositories.NewUserRepository(db)
 	courseRepo := repositories.NewCourseRepository(db)
 	materialRepo := repositories.NewMaterialRepository(db)
@@ -25,7 +26,7 @@ func SetupRoutes(router *gin.Engine, db *gorm.DB) {
 	commentRepo := repositories.NewCommentRepository(db)
 	progressRepo := repositories.NewLearningProgressRepository(db)
 
-	// Create services
+	// buat service
 	authService := services.NewAuthService(userRepo)
 	courseService := services.NewCourseService(courseRepo, userRepo)
 	materialService := services.NewMaterialService(materialRepo, courseRepo)
@@ -37,7 +38,7 @@ func SetupRoutes(router *gin.Engine, db *gorm.DB) {
 	commentService := services.NewCommentService(commentRepo, discussionRepo, userRepo, courseRepo, enrollmentRepo)
 	progressService := services.NewLearningProgressService(progressRepo, userRepo, courseRepo, enrollmentRepo, assignmentRepo)
 
-	// Create controllers
+	// buat controllers
 	authController := controllers.NewAuthController(authService)
 	courseController := controllers.NewCourseController(courseService)
 	materialController := controllers.NewMaterialController(materialService)
@@ -49,34 +50,34 @@ func SetupRoutes(router *gin.Engine, db *gorm.DB) {
 	commentController := controllers.NewCommentController(commentService)
 	progressController := controllers.NewProgressController(progressService)
 
-	// Create upload directories
+	// Buat direktori unggahan
 	createUploadDirectories()
 
-	// Routes
+	// router
 	api := router.Group("/api")
 	{
-		// Public routes
+		// Publik router
 		auth := api.Group("/auth")
 		{
 			auth.POST("/register", authController.Register)
 			auth.POST("/login", authController.Login)
 		}
 
-		// Protected routes
+		// Rute yang dilindungi
 		protected := api.Group("/")
 		protected.Use(middleware.AuthMiddleware())
 		{
-			// User profile
+			// Profil pengguna
 			protected.GET("/profile", authController.GetProfile)
 
 			// Courses
 			courses := protected.Group("/courses")
 			{
-				// Routes for all authenticated users
+				//Rute untuk para admin dan mentor
 				courses.GET("", courseController.GetAllCourses)
 				courses.GET("/:id", courseController.GetCourseByID)
 
-				// Routes for admins and mentors
+				//Rute untuk para admin dan mentor
 				adminMentorCourses := courses.Group("/")
 				adminMentorCourses.Use(func(c *gin.Context) {
 					middleware.RoleMiddleware(models.RoleAdmin, models.RoleMentor)(c)
@@ -92,12 +93,11 @@ func SetupRoutes(router *gin.Engine, db *gorm.DB) {
 			// Materials
 			materials := protected.Group("/materials")
 			{
-				// Routes for all authenticated users
+				// Rute untuk semua pengguna yang diautentikasi
 				materials.GET("/:id", materialController.GetMaterialByID)
 				materials.GET("/course/:course_id", materialController.GetMaterialsByCourse)
 				materials.GET("/download/:id", materialController.DownloadMaterial)
-
-				// Routes for admins and mentors
+				// Rute untuk admin dan mentor
 				adminMentorMaterials := materials.Group("/")
 				adminMentorMaterials.Use(func(c *gin.Context) {
 					middleware.RoleMiddleware(models.RoleAdmin, models.RoleMentor)(c)
@@ -112,11 +112,11 @@ func SetupRoutes(router *gin.Engine, db *gorm.DB) {
 			// Assignments
 			assignments := protected.Group("/assignments")
 			{
-				// Routes for all authenticated users
+				// Rute untuk semua pengguna yang diautentikasi
 				assignments.GET("/:id", assignmentController.GetAssignmentByID)
 				assignments.GET("/course/:course_id", assignmentController.GetAssignmentsByCourse)
 
-				// Routes for admins and mentors
+				// Rute untuk admin dan mentor
 				adminMentorAssignments := assignments.Group("/")
 				adminMentorAssignments.Use(func(c *gin.Context) {
 					middleware.RoleMiddleware(models.RoleAdmin, models.RoleMentor)(c)
@@ -131,11 +131,11 @@ func SetupRoutes(router *gin.Engine, db *gorm.DB) {
 			// Enrollments
 			enrollments := protected.Group("/enrollments")
 			{
-				// Routes for all authenticated users
+				// Rute untuk semua pengguna yang diautentikasi
 				enrollments.GET("/:id", enrollmentController.GetEnrollmentByID)
 				enrollments.GET("/check", enrollmentController.CheckEnrollment)
 
-				// Routes for students
+				// Rute untuk siswa
 				studentEnrollments := enrollments.Group("/")
 				studentEnrollments.Use(func(c *gin.Context) {
 					middleware.RoleMiddleware(models.RoleStudent)(c)
@@ -145,7 +145,7 @@ func SetupRoutes(router *gin.Engine, db *gorm.DB) {
 					studentEnrollments.DELETE("/:id", enrollmentController.DeleteEnrollment)
 				}
 
-				// Routes for admins and mentors
+				// Rute untuk admin dan mentor
 				adminMentorEnrollments := enrollments.Group("/")
 				adminMentorEnrollments.Use(func(c *gin.Context) {
 					middleware.RoleMiddleware(models.RoleAdmin, models.RoleMentor)(c)
@@ -159,11 +159,11 @@ func SetupRoutes(router *gin.Engine, db *gorm.DB) {
 			// Submissions
 			submissions := protected.Group("/submissions")
 			{
-				// Routes for all authenticated users
+				// Rute untuk semua pengguna yang diautentikasi
 				submissions.GET("/:id", submissionController.GetSubmissionByID)
 				submissions.GET("/download/:id", submissionController.DownloadSubmission)
 
-				// Routes for students
+				// Rute untuk siswa
 				studentSubmissions := submissions.Group("/")
 				studentSubmissions.Use(func(c *gin.Context) {
 					middleware.RoleMiddleware(models.RoleStudent)(c)
@@ -173,7 +173,7 @@ func SetupRoutes(router *gin.Engine, db *gorm.DB) {
 					studentSubmissions.DELETE("/:id", submissionController.DeleteSubmission)
 				}
 
-				// Routes for admins and mentors
+				// Rute untuk admin dan mentor
 				adminMentorSubmissions := submissions.Group("/")
 				adminMentorSubmissions.Use(func(c *gin.Context) {
 					middleware.RoleMiddleware(models.RoleAdmin, models.RoleMentor)(c)
@@ -187,11 +187,11 @@ func SetupRoutes(router *gin.Engine, db *gorm.DB) {
 			// Assessments
 			assessments := protected.Group("/assessments")
 			{
-				// Routes for all authenticated users
+				// Rute untuk semua pengguna yang diautentikasi
 				assessments.GET("/:id", assessmentController.GetAssessmentByID)
 				assessments.GET("/submission/:submission_id", assessmentController.GetAssessmentBySubmission)
 
-				// Routes for admins and mentors
+				// Rute untuk admin dan mentor
 				adminMentorAssessments := assessments.Group("/")
 				adminMentorAssessments.Use(func(c *gin.Context) {
 					middleware.RoleMiddleware(models.RoleAdmin, models.RoleMentor)(c)
@@ -206,7 +206,7 @@ func SetupRoutes(router *gin.Engine, db *gorm.DB) {
 			// Discussions
 			discussions := protected.Group("/discussions")
 			{
-				// Routes for all authenticated users
+				// Rute untuk semua pengguna yang diautentikasi
 				discussions.GET("/:id", discussionController.GetDiscussionByID)
 				discussions.GET("/course/:course_id", discussionController.GetDiscussionsByCourse)
 				discussions.POST("", discussionController.CreateDiscussion)
@@ -217,21 +217,21 @@ func SetupRoutes(router *gin.Engine, db *gorm.DB) {
 			// Comments
 			comments := protected.Group("/comments")
 			{
-				// Routes for all authenticated users
+				// Rute untuk semua pengguna yang diautentikasi
 				comments.GET("/:id", commentController.GetCommentByID)
 				comments.GET("/discussion/:discussion_id", commentController.GetCommentsByDiscussion)
 				comments.POST("", commentController.CreateComment)
 				comments.PUT("/:id", commentController.UpdateComment)
 				comments.DELETE("/:id", commentController.DeleteComment)
 			}
-			// Learning Progress routes
+			// Learning Progress
 			progress := protected.Group("/progress")
 			{
-				// Routes for all authenticated users
+				// Rute untuk semua pengguna yang diautentikasi
 				progress.GET("/:id", progressController.GetProgressByID)
 				progress.GET("/student/:student_id/course/:course_id", progressController.GetStudentProgress)
 
-				// Routes for mentors and admins
+				// Rute untuk mentor dan admin
 				mentorAdminProgress := progress.Group("/")
 				mentorAdminProgress.Use(func(c *gin.Context) {
 					middleware.RoleMiddleware(models.RoleAdmin, models.RoleMentor)(c)
@@ -241,7 +241,7 @@ func SetupRoutes(router *gin.Engine, db *gorm.DB) {
 					mentorAdminProgress.GET("/course/:course_id/students", progressController.GetCourseStudentsProgress)
 				}
 
-				// Routes only for mentors (updating grades)
+				// Rute hanya untuk mentor
 				mentorProgress := progress.Group("/")
 				mentorProgress.Use(func(c *gin.Context) {
 					middleware.RoleMiddleware(models.RoleMentor)(c)
@@ -255,9 +255,7 @@ func SetupRoutes(router *gin.Engine, db *gorm.DB) {
 	}
 }
 
-// Helper function to create upload directories
+// Fungsi pembantu untuk membuat direktori unggahan
 func createUploadDirectories() {
-	// Create upload directories if they don't exist
-	// This would be implemented with os.MkdirAll to create directories
-	// for storing uploaded files
+
 }

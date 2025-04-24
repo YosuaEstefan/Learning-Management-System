@@ -1,4 +1,3 @@
-// services/submission_service.go
 package services
 
 import (
@@ -6,9 +5,10 @@ import (
 	"LMS/repositories"
 	"errors"
 	"time"
+
 )
 
-// SubmissionService handles submission business logic
+// SubmissionService menangani logika bisnis pengiriman tugas
 type SubmissionService struct {
 	SubmissionRepo *repositories.SubmissionRepository
 	AssignmentRepo *repositories.AssignmentRepository
@@ -16,7 +16,7 @@ type SubmissionService struct {
 	UserRepo       *repositories.UserRepository
 }
 
-// NewSubmissionService creates a new submission service
+// NewSubmissionService membuat layanan pengiriman baru
 func NewSubmissionService(
 	submissionRepo *repositories.SubmissionRepository,
 	assignmentRepo *repositories.AssignmentRepository,
@@ -31,69 +31,67 @@ func NewSubmissionService(
 	}
 }
 
-// CreateSubmission creates a new submission
+// CreateSubmission membuat pengiriman baru untuk tugas
 func (s *SubmissionService) CreateSubmission(submission *models.Submission, filePath string) error {
-	// Verify the assignment exists
+	// Verifikasi adanya penugasan
 	assignment, err := s.AssignmentRepo.FindByID(submission.AssignmentID)
 	if err != nil {
 		return errors.New("assignment not found")
 	}
-
-	// Verify the student exists
+	// Verifikasi keberadaan siswa
 	student, err := s.UserRepo.FindByID(submission.StudentID)
 	if err != nil {
 		return errors.New("student not found")
 	}
 
-	// Verify the student is a student
+	// Verifikasi bahwa siswa tersebut adalah siswa
 	if student.Role != models.RoleStudent {
 		return errors.New("only students can submit assignments")
 	}
 
-	// Verify the student is enrolled in the course
+	// Verifikasi bahwa siswa telah terdaftar dalam kursus
 	_, err = s.EnrollmentRepo.FindByUserAndCourse(submission.StudentID, assignment.CourseID)
 	if err != nil {
 		return errors.New("student is not enrolled in this course")
 	}
 
-	// Check for due date if set
+	// Periksa tanggal jatuh tempo jika ditetapkan
 	if assignment.DueDate != nil && time.Now().After(*assignment.DueDate) {
 		return errors.New("assignment due date has passed")
 	}
 
-	// Check if the student has already submitted
+	// Periksa apakah siswa telah mengirimkan
 	existingSubmission, err := s.SubmissionRepo.FindByAssignmentAndStudent(submission.AssignmentID, submission.StudentID)
 	if err == nil && existingSubmission != nil {
-		// If submission exists, update it
+		// Jika ada kiriman, perbarui
 		existingSubmission.FilePath = filePath
 		existingSubmission.SubmittedAt = time.Now()
 		return s.SubmissionRepo.Update(existingSubmission)
 	}
-
-	// Set the file path and submission date
+	// Mengatur jalur file dan tanggal pengiriman
 	submission.FilePath = filePath
 	submission.SubmittedAt = time.Now()
 
-	// Create the submission
+	// Buat kiriman baru
 	return s.SubmissionRepo.Create(submission)
 }
 
-// GetSubmissionByID gets a submission by ID
+// GetSubmissionByID berdasrkan id
 func (s *SubmissionService) GetSubmissionByID(id uint) (*models.Submission, error) {
 	return s.SubmissionRepo.FindByID(id)
 }
 
-// GetSubmissionsByAssignment gets submissions by assignment ID
+// GetSubmissionsByAssignment berdasrkan assignment ID
 func (s *SubmissionService) GetSubmissionsByAssignment(assignmentID uint) ([]models.Submission, error) {
 	return s.SubmissionRepo.FindByAssignment(assignmentID)
 }
 
-// GetSubmissionsByStudent gets submissions by student ID
+// GetSubmissionsByStudent berdasrkan student ID
 func (s *SubmissionService) GetSubmissionsByStudent(studentID uint) ([]models.Submission, error) {
 	return s.SubmissionRepo.FindByStudent(studentID)
 }
 
-// DeleteSubmission deletes a submission
+// DeleteSubmission untuk submission
 func (s *SubmissionService) DeleteSubmission(id uint) error {
 	return s.SubmissionRepo.Delete(id)
 }

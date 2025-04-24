@@ -7,27 +7,28 @@ import (
 	"strconv"
 
 	"github.com/gin-gonic/gin"
+
 )
 
-// EnrollmentController handles enrollment requests
+// EnrollmentController menangani permintaan pendaftaran
 type EnrollmentController struct {
 	EnrollmentService *services.EnrollmentService
 }
 
-// NewEnrollmentController creates a new enrollment controller
+// NewEnrollmentController membuat pengontrol pendaftaran baru
 func NewEnrollmentController(enrollmentService *services.EnrollmentService) *EnrollmentController {
 	return &EnrollmentController{
 		EnrollmentService: enrollmentService,
 	}
 }
 
-// CreateEnrollmentRequest represents a request to create a new enrollment
+// CreateEnrollmentRequest mewakili permintaan untuk membuat pendaftaran baru
 type CreateEnrollmentRequest struct {
 	UserID   uint `json:"user_id" binding:"required"`
 	CourseID uint `json:"course_id" binding:"required"`
 }
 
-// CreateEnrollment handles enrollment creation
+// CreateEnrollment menangani pembuatan pendaftaran
 func (c *EnrollmentController) CreateEnrollment(ctx *gin.Context) {
 	var request CreateEnrollmentRequest
 	if err := ctx.ShouldBindJSON(&request); err != nil {
@@ -51,7 +52,7 @@ func (c *EnrollmentController) CreateEnrollment(ctx *gin.Context) {
 	})
 }
 
-// GetEnrollmentByID handles getting an enrollment by ID
+// GetEnrollmentByID menangani pendaftaran berdasarkan ID
 func (c *EnrollmentController) GetEnrollmentByID(ctx *gin.Context) {
 	id, err := strconv.ParseUint(ctx.Param("id"), 10, 32)
 	if err != nil {
@@ -68,7 +69,7 @@ func (c *EnrollmentController) GetEnrollmentByID(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, enrollment)
 }
 
-// GetEnrollmentsByUser handles getting enrollments by user ID
+// GetEnrollmentsByUser menangani pendaftaran berdasarkan ID pengguna
 func (c *EnrollmentController) GetEnrollmentsByUser(ctx *gin.Context) {
 	userID, err := strconv.ParseUint(ctx.Param("user_id"), 10, 32)
 	if err != nil {
@@ -85,7 +86,7 @@ func (c *EnrollmentController) GetEnrollmentsByUser(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, enrollments)
 }
 
-// GetEnrollmentsByCourse handles getting enrollments by course ID
+// GetEnrollmentsByCourse menangani pendaftaran berdasarkan ID kursus
 func (c *EnrollmentController) GetEnrollmentsByCourse(ctx *gin.Context) {
 	courseID, err := strconv.ParseUint(ctx.Param("course_id"), 10, 32)
 	if err != nil {
@@ -102,7 +103,7 @@ func (c *EnrollmentController) GetEnrollmentsByCourse(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, enrollments)
 }
 
-// DeleteEnrollment handles deleting an enrollment
+// DeleteEnrollment menangani penghapusan pendaftaran
 func (c *EnrollmentController) DeleteEnrollment(ctx *gin.Context) {
 	id, err := strconv.ParseUint(ctx.Param("id"), 10, 32)
 	if err != nil {
@@ -120,7 +121,7 @@ func (c *EnrollmentController) DeleteEnrollment(ctx *gin.Context) {
 	})
 }
 
-// CheckEnrollment handles checking if a student is enrolled in a course
+// CheckEnrollment menangani pengecekan apakah seorang siswa terdaftar dalam suatu kursus
 func (c *EnrollmentController) CheckEnrollment(ctx *gin.Context) {
 	userID, err := strconv.ParseUint(ctx.Query("user_id"), 10, 32)
 	if err != nil {

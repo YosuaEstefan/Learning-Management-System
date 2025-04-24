@@ -4,11 +4,11 @@ import (
 	"time"
 
 	"gorm.io/gorm"
+
 )
 
 type ProgressType string
 
-// Progress types
 const (
 	ProgressTypeMaterial   ProgressType = "material"
 	ProgressTypeAssignment ProgressType = "assignment"
@@ -25,25 +25,15 @@ type LearningProgress struct {
 	Course        Course       `gorm:"foreignKey:CourseID" json:"course,omitempty"`
 	ActivityType  ProgressType `gorm:"type:enum('material','assignment','quiz','discussion');not null" json:"activity_type"`
 	ActivityID    uint         `gorm:"not null" json:"activity_id"`
-	ActivityTitle string       `gorm:"-" json:"activity_title,omitempty"` // Tidak disimpan di DB
+	ActivityTitle string       `gorm:"-" json:"activity_title,omitempty"`
 	Score         *float64     `json:"score"`
 	MaxScore      *float64     `json:"max_score"`
 	Feedback      string       `gorm:"type:text" json:"feedback"`
 	GradedBy      uint         `json:"graded_by"`
 	Grader        User         `gorm:"foreignKey:GradedBy" json:"grader,omitempty"`
-	GraderName    string       `gorm:"-" json:"grader_name,omitempty"` // Tidak disimpan di DB
+	GraderName    string       `gorm:"-" json:"grader_name,omitempty"`
 	Completed     bool         `gorm:"default:false" json:"completed"`
 	CompletedAt   *time.Time   `json:"completed_at"`
 	CreatedAt     time.Time    `gorm:"default:CURRENT_TIMESTAMP" json:"created_at"`
 	UpdatedAt     time.Time    `gorm:"default:CURRENT_TIMESTAMP" json:"updated_at"`
 }
-
-// type LearningProgress struct {
-// 	gorm.Model
-// 	ID           uint      `gorm:"primaryKey" json:"id"`
-// 	UserID       uint      `json:"user_id"`
-// 	CourseID     uint      `json:"course_id"`
-// 	MaterialID   uint      `json:"material_id"`
-// 	ActivityType string    `json:"activity_type"` // misal: "view", "download", "submit"
-// 	Timestamp    time.Time `json:"timestamp"`
-// }
