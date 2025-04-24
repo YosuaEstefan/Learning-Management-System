@@ -2,35 +2,46 @@ package main
 
 import (
 	"LMS/config"
-	"LMS/repositories"
 	"LMS/routes"
-	services "LMS/service"
+	"log"
+
+	"github.com/gin-gonic/gin"
 )
 
 func main() {
-	// Koneksi database dan migrasi semua model
-	db := config.ConnectDB()
-	config.MigrateDB(db)
+	// Set Gin to release mode in production
+	// gin.SetMode(gin.ReleaseMode)
 
-	// Inisialisasi service Enrollment
-	enrollmentRepo := repositories.NewEnrollmentRepository(db)
-	services.EnrollmentServiceInstance = services.NewEnrollmentService(enrollmentRepo)
+	// Initialize the database
+	db, err := config.InitDB()
+	if err != nil {
+		log.Fatalf("Failed to connect to database: %v", err)
+	}
 
-	// Inisialisasi service Submission
-	submissionRepo := repositories.NewSubmissionRepository(db)
-	services.SubmissionServiceInstance = services.NewSubmissionService(submissionRepo)
+	// Initialize router with database connection
+	router := gin.Default()
 
-	// Inisialisasi service Assessment
-	assessmentRepo := repositories.NewAssessmentRepository(db)
-	services.AssessmentServiceInstance = services.NewAssessmentService(assessmentRepo)
+	// Enable CORS
+	router.Use(func(c *gin.Context) {
+		c.Writer.Header().Set("Access-Control-Allow-Origin", "*")
+		c.Writer.Header().Set("Access-Control-Allow-Credentials", "true")
+		c.Writer.Header().Set("Access-Control-Allow-Headers", "Content-Type, Content-Length, Accept-Encoding, X-CSRF-Token, Authorization, accept, origin, Cache-Control, X-Requested-With")
+		c.Writer.Header().Set("Access-Control-Allow-Methods", "POST, OPTIONS, GET, PUT, DELETE")
 
-	// Inisialisasi service Discussion dan Comment
-	discussionRepo := repositories.NewDiscussionRepository(db)
-	services.DiscussionServiceInstance = services.NewDiscussionService(discussionRepo)
+		if c.Request.Method == "OPTIONS" {
+			c.AbortWithStatus(204)
+			return
+		}
 
-	commentRepo := repositories.NewCommentRepository(db)
-	services.CommentServiceInstance = services.NewCommentService(commentRepo)
+		c.Next()
+	})
 
-	router := routes.SetupRouter()
-	router.Run(":8080")
+	// Setup routes
+	routes.SetupRoutes(router, db)
+
+	// Start the server
+	log.Println("Server started on :8080")
+	if err := router.Run(":8080"); err != nil {
+		log.Fatalf("Failed to start server: %v", err)
+	}
 }
