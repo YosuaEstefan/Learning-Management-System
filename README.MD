@@ -94,7 +94,7 @@ LMS/
 
 ## 📬 API Endpoints
 
-> **Full documentation** in `postman_collection.json` or inspect `controllers/` directory.
+> **Full documentation** in  [📑 Postman LMS API Docs](https://documenter.getpostman.com/view/39611346/2sB2izDYxG)
 
 ### Authentication
 
@@ -233,10 +233,10 @@ LMS/
    go build -o lms ./cmd/main.go
    ./lms
    ```
-4. **Access the API** at `http://localhost:8080`
+4. **Access the API** at `http://localhost:8081`
 
 ## ✅ Testing
-
+ [📑 Postman LMS API Docs](https://documenter.getpostman.com/view/39611346/2sB2izDYxG)
 - Import `postman_collection.json` into Postman.
 - Run **Authentication** tests first to obtain a JWT token.
 - Run other endpoint tests; they will use the token automatically.
@@ -249,6 +249,3 @@ LMS/
 - File uploads restricted to `uploads/` directories.
 - Input validation applied on all requests.
 
-## 📄 License
-
-This project is licensed under the **MIT License**. See [LICENSE](LICENSE) for details.
